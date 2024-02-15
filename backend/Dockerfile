@@ -10,5 +10,5 @@ COPY . .
 # 依存関係をインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
-# アプリケーションを起動するためのコマンドを設定（app.pyはあなたのFlaskアプリケーションのエントリーポイントです）
+# アプリケーションを起動するためのコマンドを設定（app.pyはFlaskアプリケーションのエントリーポイント）
 CMD ["python", "app.py"]

@@ -2,6 +2,8 @@ from flask import Flask
 
 app = Flask(__name__)
 
+# ルーティングもここで書く
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
