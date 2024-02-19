@@ -13,34 +13,34 @@ function App() {
 
     if (selectedOption === 'Overlay') {
       selectedSeriesData = [{
-        type: 'line', // 追加
+        type: 'line',
         name: '広告枠A',
         data: [75, 82, 80, 76, 72, 70, 74, 79, 77, 81, 73, 75]
       },
       {
-        type: 'line', // 追加
+        type: 'line',
         name: '広告枠B',
         data: [65, 68, 74, 71, 73, 66, 80, 71, 69, 75, 71, 77]
       }];
     } else if (selectedOption === 'Interstitial') {
       selectedSeriesData = [{
-        type: 'line', // 追加
+        type: 'line',
         name: '広告枠C',
         data: [92, 79, 101, 89, 90, 92, 88, 81, 67, 74, 69, 89]
       },
       {
-        type: 'line', // 追加
+        type: 'line',
         name: '広告枠D',
         data: [78, 90, 78, 78, 84, 86, 89, 90, 87, 67, 77, 88]
       }];
     } else if (selectedOption === 'Inarticle') {
       selectedSeriesData = [{
-        type: 'line', // 追加
+        type: 'line',
         name: '広告枠E',
         data: [76, 67, 89, 90, 101, 110, 99, 97, 100, 104, 100, 102]
       },
       {
-        type: 'line', // 追加
+        type: 'line',
         name: '広告枠F',
         data: [88, 89, 99, 78, 100, 100, 75, 88, 81, 78, 79, 90]
       }];
