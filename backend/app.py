@@ -1,4 +1,9 @@
-from flask import Flask
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from flask import Flask, jsonify
+from database import crud
 
 app = Flask(__name__)
 
@@ -13,8 +18,9 @@ def sample():
     return 'ここはsampleページです'
 
 @app.route('/api/index')
-def sample():
-    return 'ここにid,日付,ユニット名を表示したい'
+def index():
+    units_list = crud.get_units()
+    return jsonify(units_list)
 
 # html要素optionが組み込まれたパスにGETメソッド '/api/{selectedOption}'←こんな感じ
     # databaseディレクトリ内のファイルにて、SQLよりデータ抽出するコマンドを記載(SQL Archemy)
