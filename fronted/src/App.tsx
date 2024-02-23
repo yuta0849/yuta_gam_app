@@ -14,6 +14,7 @@ function App() {
     if (selectedOption === 'Overlay') {
       selectedSeriesData = [{
         type: 'line',
+        //以下、name,dataはDBより取得する必要がある
         name: '広告枠A',
         data: [75, 82, 80, 76, 72, 70, 74, 79, 77, 81, 73, 75]
       },
@@ -87,6 +88,9 @@ function App() {
   // selectエレメントが変更されたときにselectedOptionを更新
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
+    //ここで event.target.value を組み込んだルーティングにGETメソッドを投げる
+    //app.pyにてルーティング
+
     console.log(`${event.target.value} was selected.`)
   };
 
