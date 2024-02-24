@@ -5,21 +5,30 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./:/app  # ホストの.（ルートディレクトリ）をコンテナの/appディレクトリにマッピング
+      - ./:/app # ホストの.（ルートディレクトリ）をコンテナの/appディレクトリにマッピング
     environment:
-    - MYSQL_DATABASE=${MYSQL_DATABASE}
-    - MYSQL_USER=${MYSQL_USER}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=${MYSQL_HOST}
+    depends_on:
+      - database
   fronted:
     build: ./fronted
     ports:
       - 3000:3000
     volumes:
-      - ./fronted:/app  # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
+      - ./fronted:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
   database:
     build: ./database
+    ports:
+      - 3306:3306
     volumes:
       - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=${MYSQL_HOST}
 volumes:
   db_data:
