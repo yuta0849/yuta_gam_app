@@ -1,8 +1,7 @@
 # ベースとするDockerイメージの指定
 FROM mysql:8.0
 
-# 環境変数の設定（データベース名、ユーザ名、パスワード等）
-ENV MYSQL_DATABASE=mydatabase
-ENV MYSQL_USER=myuser
-ENV MYSQL_PASSWORD=mypassword
-ENV MYSQL_ROOT_PASSWORD=rootpassword
+# databaseディレクトリ配下でdatabaseを作成
+# DB containerの作成もここで行う
+# ローカルの情報(csv)をコンテナ内に移す方法は調べればありそう
+# DB作る table作る insertする

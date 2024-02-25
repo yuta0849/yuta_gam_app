@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import Flask, jsonify
-from database import crud
+from backend import crud
 
 app = Flask(__name__)
 
@@ -17,6 +17,7 @@ def hello_world():
 def sample():
     return 'ここはsampleページです'
 
+# 下記が機能しない
 @app.route('/api/index')
 def index():
     units_list = crud.get_units()
