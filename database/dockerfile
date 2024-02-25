@@ -1,6 +1,10 @@
 # ベースとするDockerイメージの指定
 FROM mysql:8.0
 
+# CSVファイルとSQLスクリプトをdocker containerにcopy
+COPY ./mydata.csv /path_to_your_csv/mydata.csv
+COPY ./mydata.sql /docker-entrypoint-initdb.d/mydata.sql
+
 # databaseディレクトリ配下でdatabaseを作成
 # DB containerの作成もここで行う
 # ローカルの情報(csv)をコンテナ内に移す方法は調べればありそう

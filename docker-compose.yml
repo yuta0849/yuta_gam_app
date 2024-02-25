@@ -13,12 +13,12 @@ services:
       - MYSQL_HOST=${MYSQL_HOST}
     depends_on:
       - database
-  fronted:
-    build: ./fronted
+  frontend:
+    build: ./frontend
     ports:
       - 3000:3000
     volumes:
-      - ./fronted:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
+      - ./frontend:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
   database:
     build: ./database
     ports:
@@ -29,6 +29,6 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_HOST=${MYSQL_HOST}
+      # - MYSQL_HOST=${MYSQL_HOST}
 volumes:
   db_data:
