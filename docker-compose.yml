@@ -10,7 +10,7 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_HOST=database
     depends_on:
       - database
   frontend:
@@ -21,14 +21,14 @@ services:
       - ./frontend:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
   database:
     build: ./database
-    ports:
-      - 3306:3306
+    command: --secure-file-priv=""
     volumes:
       - db_data:/var/lib/mysql
+      - .database:/var/lib/mysql-files
     environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      # - MYSQL_HOST=${MYSQL_HOST}
 volumes:
   db_data:
