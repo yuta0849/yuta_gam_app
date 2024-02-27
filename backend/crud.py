@@ -10,5 +10,5 @@ def get_units():
 
     units_list = []
     for row in result:
-        units_list.append({'id': row.id, 'date': str(row.date), 'ad_unit': row.ad_unit}) 
+        units_list.append({'id': row.id, 'date': str(row.date), 'ad_unit': row.ad_unit, 'adx_revenue': row.adx_revenue}) 
     return units_list

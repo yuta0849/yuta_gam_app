@@ -21,5 +21,3 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
 (@var1, ad_unit, adx_impressions, adx_revenue, avg_adx_cpm)
 SET date = STR_TO_DATE(@var1, '%Y/%m/%d');
-
--- ここでyuta_suzukiにDBへのアクセス権限を渡す処理もするべきかも
