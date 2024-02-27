@@ -1,0 +1,16 @@
+.App {
+  text-align: center;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30vh;
+}
+
+select {
+  width: 200px;  /* 幅の変更 */
+  height: 50px;  /* 高さの変更 */
+  font-size: 20px;  /* フォントサイズの変更 */
+}
