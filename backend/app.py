@@ -17,17 +17,24 @@ def hello_world():
 def sample():
     return 'ここはsampleページです'
 
-# 下記が機能しない
 @app.route('/api/index')
 def index():
     units_list = crud.get_units()
     return jsonify(units_list)
 
 # html要素optionが組み込まれたパスにGETメソッド '/api/{selectedOption}'←こんな感じ
-    # databaseディレクトリ内のファイルにて、SQLよりデータ抽出するコマンドを記載(SQL Archemy)
-        # 上記コマンドをapp.pyで呼び出す
-    # backendディレクトリ内のファイルにて、HighChartsにて描画するためのデータ整形をする
-        # 上記コマンドをapp.pyで呼び出す
+    # app.pyでは'/api/overlaydata','/api/interstitialdata'のルーティングを行う
+    # SQL操作コマンドはcrud.pyにて行う
+        # こちらにメソッド get_overlaydata, get_interstitaldata を定義
+            # 上記メソッドをapp.pyのそれぞれのルーティングで呼び出し
+    # App.tsxでhighchartsで描画できる形式でcrud.pyからデータを受け取るようにする
+
+# app.tsxからのGETメソッドの投げ方の例
+#       useEffect(() => {
+#     fetch('/api/books')
+#       .then(response => response.json())
+#       .then(data => setBooks(data));
+#   }, []);
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
