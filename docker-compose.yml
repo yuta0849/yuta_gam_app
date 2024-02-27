@@ -24,7 +24,7 @@ services:
     command: --secure-file-priv=""
     volumes:
       - db_data:/var/lib/mysql
-      - .database:/var/lib/mysql-files
+      # - .database:/var/lib/mysql-files
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
