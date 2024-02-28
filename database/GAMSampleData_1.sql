@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Adx_Last_7days_Data (
   avg_adx_cpm DECIMAL(10, 2)
 );
   
-LOAD DATA INFILE '/docker-entrypoint-initdb.d/GAMSampleData_1.csv'
+LOAD DATA INFILE '/docker-entrypoint-initdb.d/GAMSampleData_1_masked.csv'
 INTO TABLE Adx_Last_7days_Data
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'

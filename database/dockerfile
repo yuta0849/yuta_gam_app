@@ -2,7 +2,7 @@
 FROM mysql:8.0
 
 # CSVファイルとSQLスクリプトをdocker containerにcopy
-COPY ./GAMSampleData_1.csv /docker-entrypoint-initdb.d/GAMSampleData_1.csv
+COPY ./GAMSampleData_1_masked.csv /docker-entrypoint-initdb.d/GAMSampleData_1_masked.csv
 COPY ./GAMSampleData_1.sql /docker-entrypoint-initdb.d/GAMSampleData_1.sql
 
 # databaseディレクトリ配下でdatabaseを作成
