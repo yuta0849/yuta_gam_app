@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Highcharts, { SeriesLineOptions } from 'highcharts';
+import axios from 'axios';
 
 function App() {
   //useStateでoptionを定義
@@ -85,13 +86,17 @@ function App() {
     });
   }, [selectedOption]);
 
-  // selectエレメントが変更されたときにselectedOptionを更新
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  // select要素が変更されたときにselectedOptionを更新
+  const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
-    //ここで event.target.value を組み込んだルーティングにGETメソッドを投げる
-    //app.pyにてルーティング
-
     console.log(`${event.target.value} was selected.`)
+    // event.target.value を組み込んだルーティングにGETメソッドを投げる
+    // try {
+    //   const response = await axios.get(`/api/${selectedOption.toLowerCase()}`);
+    //   console.log(response.data);
+    // } catch (error) {
+    //   console.error(`Error fetching data from /api/${selectedOption.toLowerCase()}: ${error}`);
+    // }
   };
 
   return (
