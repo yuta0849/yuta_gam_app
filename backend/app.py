@@ -4,8 +4,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from flask import Flask, jsonify
 from backend import crud
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # ルーティングもここで書く
 

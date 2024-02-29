@@ -10,94 +10,68 @@ function App() {
 
   //useEffectでoptionが変更されるとHighChartsにて再描画
   useEffect(() => {
-    let selectedSeriesData: Highcharts.SeriesLineOptions[] = []; // ここで型を定義します。
-
-    if (selectedOption === 'Overlay') {
-      selectedSeriesData = [{
-        type: 'line',
-        //以下、name,dataはDBより取得する必要がある
-        name: '広告枠A',
-        data: [75, 82, 80, 76, 72, 70, 74, 79, 77, 81, 73, 75]
-      },
-      {
-        type: 'line',
-        name: '広告枠B',
-        data: [65, 68, 74, 71, 73, 66, 80, 71, 69, 75, 71, 77]
-      }];
-    } else if (selectedOption === 'Interstitial') {
-      selectedSeriesData = [{
-        type: 'line',
-        name: '広告枠C',
-        data: [92, 79, 101, 89, 90, 92, 88, 81, 67, 74, 69, 89]
-      },
-      {
-        type: 'line',
-        name: '広告枠D',
-        data: [78, 90, 78, 78, 84, 86, 89, 90, 87, 67, 77, 88]
-      }];
-    } else if (selectedOption === 'Inarticle') {
-      selectedSeriesData = [{
-        type: 'line',
-        name: '広告枠E',
-        data: [76, 67, 89, 90, 101, 110, 99, 97, 100, 104, 100, 102]
-      },
-      {
-        type: 'line',
-        name: '広告枠F',
-        data: [88, 89, 99, 78, 100, 100, 75, 88, 81, 78, 79, 90]
-      }];
+    console.log(`${selectedOption} was selected.`)
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/${selectedOption.toLowerCase()}`);
+        
+        //JSONデータをHighchartsに適した形式に変換します
+        const formattedData = response.data.map((item: { avg_cpm: string, date: string }) => {
+          return {
+            x: new Date(item.date), // 日付
+            y: Number(item.avg_cpm) // CPM値
+          }
+        });
+  
+        var chart = new Highcharts.Chart({
+          chart: {
+            renderTo: 'container',
+            margin: [50, 150, 60, 80]
+          },
+          title: { text: undefined },
+          xAxis: {
+            type: 'datetime',
+            title: { text: null }
+          },
+          yAxis: {
+            title: { text: null },
+            plotLines: [{
+              value: 0,
+              width: 1,
+              color: '#808080'
+            }]
+          },
+          tooltip: {
+            pointFormat: 'CPM: ¥<b>{point.y:.2f}</b>',
+            xDateFormat: '%m/%d'
+          },
+          legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'top',
+            x: -10,
+            y: 100,
+            borderWidth: 0
+          },
+          series: [{
+            type: 'line',
+            name: selectedOption, //選択されたオプション（＝チャート名）
+            data: formattedData  //変換後のデータ
+          }]
+        });
+        
+      } catch (error) {
+        console.error(`Error fetching data: ${error}`);
+      }
     }
+  
+    fetchData();
+  }, [selectedOption]); //selectedOptionが変わる度にuseEffectが発火します。
 
-    const chart = new Highcharts.Chart({
-      chart: {
-        renderTo: 'container',
-        margin: [50, 150, 60, 80]
-      },
-      title: {
-        text: '平均CPM',
-        style: { margin: '50px 100px 0 0' }
-      },
-      xAxis: {
-        categories: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        title: { text: '月' }
-      },
-      yAxis: {
-        title: { text: 'CPM (¥)' },
-        plotLines: [{
-          value: 0,
-          width: 1,
-          color: '#808080'
-        }]
-      },
-      tooltip: {
-        formatter: function (this: any) {
-          return this.series.name + ' ' + this.x + ': ¥' + this.y;
-        }
-      },
-      legend: {
-        layout: 'vertical',
-        align: 'right',
-        verticalAlign: 'top',
-        x: -10,
-        y: 100,
-        borderWidth: 0
-      },
-      series: selectedSeriesData
-    });
-  }, [selectedOption]);
-
-  // select要素が変更されたときにselectedOptionを更新
-  const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  // select要素が変更されたときにselectedOptionを更新　→ selectedOptionが変更されるとuseEffectでAPIリクエストが行われhighCharts描画が行われる
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
-    console.log(`${event.target.value} was selected.`)
-    // event.target.value を組み込んだルーティングにGETメソッドを投げる
-    // try {
-    //   const response = await axios.get(`/api/${selectedOption.toLowerCase()}`);
-    //   console.log(response.data);
-    // } catch (error) {
-    //   console.error(`Error fetching data from /api/${selectedOption.toLowerCase()}: ${error}`);
-    // }
-  };
+};
 
   return (
     <>
