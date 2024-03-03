@@ -10,7 +10,7 @@ from requests_oauthlib import OAuth2Session
 
 app = Flask(__name__)
 login_manager = LoginManager(app)
-oauth = OAuth2Session('GOOGLE_CLIENT_ID', redirect_uri='http://localhost:5000/authentication', scope='https://www.googleapis.com/auth/userinfo.email', client_secret='GOOGLE_CLIENT_SECRET')
+oauth = OAuth2Session('GOOGLE_CLIENT_ID', redirect_uri='http://localhost:5000/authentication', scope='https://www.googleapis.com/auth/userinfo.email')
 CORS(app)
 
 # ルーティングもここで書く
