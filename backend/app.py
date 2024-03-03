@@ -45,10 +45,13 @@ def login():
 
 @app.route('/authentication')
 def authenticate():
-    code = request.args.get('code')
-    token = oauth.fetch_token('https://oauth2.googleapis.com/token', authorization_response=request.url, client_secret=client_secret, code=code)
-    # ここから先はアクセストークンを使った処理を書くことができます。
-    return redirect('http://localhost:3000/')
+    try:
+        code = request.args.get('code')
+        token = oauth.fetch_token('https://oauth2.googleapis.com/token', authorization_response=request.url, client_secret=client_secret, code=code)
+        # ここから先はアクセストークンを使った処理を書くことができます。
+        return redirect('http://localhost:3000/')
+    except Exception as e:
+        return "ログインに失敗しました: " + str(e)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
