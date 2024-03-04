@@ -1,109 +1,120 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import Highcharts, { SeriesLineOptions } from 'highcharts';
+import React, { useEffect, useRef, useState } from 'react';
+import Highcharts from 'highcharts';
+import axios from 'axios';
 
 function App() {
-  //useStateでoptionを定義
+  const [loggedIn, setLoggedIn] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Overlay");
+  const containerRef = useRef(null);
+  const [chart, setChart] = useState<Highcharts.Chart | null>(null);
 
-
-  //useEffectでoptionが変更されるとHighChartsにて再描画
   useEffect(() => {
-    let selectedSeriesData: Highcharts.SeriesLineOptions[] = []; // ここで型を定義します。
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/${selectedOption.toLowerCase()}`);
 
-    if (selectedOption === 'Overlay') {
-      selectedSeriesData = [{
-        type: 'line',
-        //以下、name,dataはDBより取得する必要がある
-        name: '広告枠A',
-        data: [75, 82, 80, 76, 72, 70, 74, 79, 77, 81, 73, 75]
-      },
-      {
-        type: 'line',
-        name: '広告枠B',
-        data: [65, 68, 74, 71, 73, 66, 80, 71, 69, 75, 71, 77]
-      }];
-    } else if (selectedOption === 'Interstitial') {
-      selectedSeriesData = [{
-        type: 'line',
-        name: '広告枠C',
-        data: [92, 79, 101, 89, 90, 92, 88, 81, 67, 74, 69, 89]
-      },
-      {
-        type: 'line',
-        name: '広告枠D',
-        data: [78, 90, 78, 78, 84, 86, 89, 90, 87, 67, 77, 88]
-      }];
-    } else if (selectedOption === 'Inarticle') {
-      selectedSeriesData = [{
-        type: 'line',
-        name: '広告枠E',
-        data: [76, 67, 89, 90, 101, 110, 99, 97, 100, 104, 100, 102]
-      },
-      {
-        type: 'line',
-        name: '広告枠F',
-        data: [88, 89, 99, 78, 100, 100, 75, 88, 81, 78, 79, 90]
-      }];
+        const formattedData = response.data.map((item: { avg_cpm: string, date: string }) => {
+          return {
+            x: new Date(item.date),
+            y: Number(item.avg_cpm)
+          }
+        });
+
+        // containerRef.currentが存在しているかどうかチェック
+        if (containerRef.current) {
+          const newChart = new Highcharts.Chart({
+            chart: {
+              renderTo: containerRef.current,
+              margin: [50, 150, 60, 80]
+            },
+            title: { text: undefined },
+            xAxis: {
+              type: 'datetime',
+              title: { text: null }
+            },
+            yAxis: {
+              title: { text: null },
+              plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+              }]
+            },
+            tooltip: {
+              pointFormat: 'CPM: ¥<b>{point.y:.2f}</b>',
+              xDateFormat: '%m/%d'
+            },
+            legend: {
+              layout: 'vertical',
+              align: 'right',
+              verticalAlign: 'top',
+              x: -10,
+              y: 100,
+              borderWidth: 0
+            },
+            series: [{
+              type: 'line',
+              name: selectedOption,
+              data: formattedData
+            }]
+          });
+          setChart(newChart);
+        }
+
+      } catch (error) {
+        console.error(`Error fetching data: ${error}`);
+      }
     }
 
-    const chart = new Highcharts.Chart({
-      chart: {
-        renderTo: 'container',
-        margin: [50, 150, 60, 80]
-      },
-      title: {
-        text: '平均CPM',
-        style: { margin: '50px 100px 0 0' }
-      },
-      xAxis: {
-        categories: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        title: { text: '月' }
-      },
-      yAxis: {
-        title: { text: 'CPM (¥)' },
-        plotLines: [{
-          value: 0,
-          width: 1,
-          color: '#808080'
-        }]
-      },
-      tooltip: {
-        formatter: function (this: any) {
-          return this.series.name + ' ' + this.x + ': ¥' + this.y;
-        }
-      },
-      legend: {
-        layout: 'vertical',
-        align: 'right',
-        verticalAlign: 'top',
-        x: -10,
-        y: 100,
-        borderWidth: 0
-      },
-      series: selectedSeriesData
-    });
+    fetchData();
   }, [selectedOption]);
 
-  // selectエレメントが変更されたときにselectedOptionを更新
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/loggedin', { withCredentials: true });
+        setLoggedIn(response.data.loggedIn);
+      } catch (error) {
+        console.error(`Error checking login status: ${error}`);
+      }
+    }
+
+    checkLoginStatus();
+  }, []);
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
-    //ここで event.target.value を組み込んだルーティングにGETメソッドを投げる
-    //app.pyにてルーティング
-
-    console.log(`${event.target.value} was selected.`)
   };
+
+  const handleLogin = () => {
+    window.location.href = "http://localhost:5000/login";
+  }
+
+  const handleLogout = async () => {
+    if (chart !== null) {
+      chart.destroy();
+    }
+    await axios.get('http://localhost:5000/logout', { withCredentials: true });
+    setLoggedIn(false);
+  }
+
+  if (!loggedIn) {
+    return (
+      <div className="center">
+        <button onClick={handleLogin}>ログイン</button>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="App" id="container">
-      </div>
+      <div className="App" id="container" ref={containerRef}></div>
       <div className="center">
         <select value={selectedOption} onChange={handleChange}>
           <option value="Overlay">Overlay</option>
           <option value="Interstitial">Interstitial</option>
-          <option value="Inarticle">Inarticle</option>
         </select>
+        <button onClick={handleLogout}>ログアウト</button>
       </div>
     </>
   );

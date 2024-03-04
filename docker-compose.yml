@@ -10,7 +10,7 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_HOST=database
+      - MYSQL_HOST=${MYSQL_HOST}
     depends_on:
       - database
   frontend:
@@ -24,7 +24,7 @@ services:
     command: --secure-file-priv=""
     volumes:
       - db_data:/var/lib/mysql
-      - .database:/var/lib/mysql-files
+      # - .database:/var/lib/mysql-files
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
