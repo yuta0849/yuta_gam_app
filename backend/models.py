@@ -7,8 +7,8 @@
 from sqlalchemy import Column, Integer, String, Date, DECIMAL
 from .database import Base
 
-class AdxLast7daysData(Base):
-    __tablename__ = "Adx_Last_7days_Data"
+class Adx_Data(Base):
+    __tablename__ = "Adx_Data"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     date = Column(Date)

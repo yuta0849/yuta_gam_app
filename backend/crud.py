@@ -1,21 +1,12 @@
 # データベース操作（Create、Read、Update、Delete）を行う関数を記述するためのファイル。
 from .database import SessionLocal, SQLALCHEMY_DATABASE_URL
-from .models import AdxLast7daysData
+from .models import Adx_Data
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 # app.pyで呼び出す
 def get_data(option):
-    if option == "index":
-        session = SessionLocal()
-        result = session.query(AdxLast7daysData).all()
-        session.close()
-
-        data = []
-        for row in result:
-            data.append({'id': row.id, 'date': str(row.date), 
-                         'ad_unit': row.ad_unit, 'adx_revenue': row.adx_revenue}) 
-    elif option == "overlay":
+    if option == "overlay":
         # overlayデータを取得するためのクエリを実行
          data = query_overlay_data()
     elif option == "interstitial":
@@ -34,7 +25,7 @@ def query_overlay_data():
             date,
             (SUM(adx_revenue) / SUM(adx_impressions)) * 1000 as avg_cpm
         FROM
-            Adx_Last_7days_Data
+            Adx_Data
         WHERE
             ad_unit LIKE '%overlay%'
         GROUP BY
@@ -55,7 +46,7 @@ def query_interstitial_data():
             date,
             (SUM(adx_revenue) / SUM(adx_impressions)) * 1000 as avg_cpm
         FROM
-            Adx_Last_7days_Data
+            Adx_Data
         WHERE
             ad_unit LIKE '%interstitial%'
         GROUP BY
