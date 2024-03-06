@@ -99,6 +99,41 @@ function App() {
     setLoggedIn(false);
   }
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null) {
+        return;
+    }
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.post('http://localhost:5000/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.data instanceof Array) {
+        const newSeriesData = response.data.map((item: {date: string, name: string, avg_cpm: number}) => {
+            return {
+                name: item.name,
+                data: [{
+                    x: new Date(item.date).getTime(),
+                    y: item.avg_cpm
+                }]
+            };
+        });
+    
+        if (chart) {
+            newSeriesData.forEach((item) => {
+                chart.addSeries({
+                    type: 'line',
+                    name: item.name,
+                    data: item.data,
+                });
+            });
+        }
+    }
+};
+
   if (!loggedIn) {
     return (
       <div className="center">
@@ -115,7 +150,7 @@ function App() {
           <option value="Overlay">Overlay</option>
           <option value="Interstitial">Interstitial</option>
         </select>
-        <input type="file" />
+        <input type="file" onChange={handleFileUpload} />
         <button onClick={handleLogout}>ログアウト</button>
       </div>
     </>

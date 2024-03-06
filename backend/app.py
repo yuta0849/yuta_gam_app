@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import pandas as pd
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -14,6 +15,7 @@ from backend import crud
 from flask_cors import CORS
 from flask_login import LoginManager
 from requests_oauthlib import OAuth2Session
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
@@ -76,6 +78,47 @@ def loggedin():
         return {"loggedIn": True}
     else:
         return {"loggedIn": False}
+
+
+# ファイルアップロード時の処理
+UPLOAD_FOLDER = './uploads'
+ALLOWED_EXTENSIONS = {'csv'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# ファイルの拡張子が許可されているかどうかを確認します。
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+       # ファイルを読み込む
+        df = pd.read_csv(filepath)
+
+        # 最終行を除去
+        df = df.iloc[:-1]
+
+        # ファイルの最初の3つの列を 'date', 'name' および 'avg_cpm' として取得
+        df = df.iloc[:, :3]
+        df.columns = ['date', 'name', 'avg_cpm']
+
+        # avg_cpmのカンマを取り除く
+        df['avg_cpm'] = df['avg_cpm'].str.replace(',', '').astype(float)
+
+        output_data = df[['date', 'name', 'avg_cpm']].to_dict('records')
+
+        return jsonify(output_data), 200
+    else:
+        return {"Status": "File upload failed"}, 400
+
+
 
 
 if __name__ == '__main__':
