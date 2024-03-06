@@ -26,7 +26,7 @@ function App() {
           const newChart = new Highcharts.Chart({
             chart: {
               renderTo: containerRef.current,
-              margin: [50, 150, 60, 80]
+              margin: [50, 250, 60, 80]
             },
             title: { text: undefined },
             xAxis: {
@@ -111,24 +111,21 @@ function App() {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
 
+    console.log(response.data);
+
     if (response.data instanceof Array) {
-        const newSeriesData = response.data.map((item: {date: string, name: string, avg_cpm: number}) => {
+        const data = response.data.map((item: {date: string, name: string, avg_cpm: number}) => {
             return {
-                name: item.name,
-                data: [{
-                    x: new Date(item.date).getTime(),
-                    y: item.avg_cpm
-                }]
+                x: new Date(item.date).getTime(),
+                y: item.avg_cpm
             };
         });
-    
+
         if (chart) {
-            newSeriesData.forEach((item) => {
-                chart.addSeries({
-                    type: 'line',
-                    name: item.name,
-                    data: item.data,
-                });
+            chart.addSeries({
+                type: 'line',
+                name: response.data[0].name,
+                data: data,
             });
         }
     }

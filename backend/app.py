@@ -108,9 +108,12 @@ def upload_file():
         # ファイルの最初の3つの列を 'date', 'name' および 'avg_cpm' として取得
         df = df.iloc[:, :3]
         df.columns = ['date', 'name', 'avg_cpm']
+        
+        # 日付を'YYYY/MM/DD'形式の文字列に変換
+        df['date'] = pd.to_datetime(df['date'], format='%y/%m/%d').dt.strftime('%Y/%m/%d')
 
-        # avg_cpmのカンマを取り除く
-        df['avg_cpm'] = df['avg_cpm'].str.replace(',', '').astype(float)
+        # avg_cpmを文字列型にキャストし、その上でカンマを削除
+        df['avg_cpm'] = df['avg_cpm'].astype(str).str.replace(',', '').astype(float)
 
         output_data = df[['date', 'name', 'avg_cpm']].to_dict('records')
 
