@@ -7,9 +7,15 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Overlay");
   const containerRef = useRef(null);
+  const inputFileRef = useRef<HTMLInputElement | null>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
 
   useEffect(() => {
+    // input要素のリセット
+    if (inputFileRef.current) {
+      inputFileRef.current.value = '';
+    }
+    
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/${selectedOption.toLowerCase()}`);
@@ -101,35 +107,35 @@ function App() {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) {
-        return;
+      return;
     }
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
 
     const response = await axios.post('http://localhost:5000/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
 
     console.log(response.data);
 
     if (response.data instanceof Array) {
-        const data = response.data.map((item: {date: string, name: string, avg_cpm: number}) => {
-            return {
-                x: new Date(item.date).getTime(),
-                y: item.avg_cpm
-            };
-        });
+      const data = response.data.map((item: { date: string, name: string, avg_cpm: number }) => {
+        return {
+          x: new Date(item.date).getTime(),
+          y: item.avg_cpm
+        };
+      });
 
-        if (chart) {
-            chart.addSeries({
-                type: 'line',
-                name: response.data[0].name,
-                data: data,
-            });
-        }
+      if (chart) {
+        chart.addSeries({
+          type: 'line',
+          name: response.data[0].name,
+          data: data,
+        });
+      }
     }
-};
+  };
 
   if (!loggedIn) {
     return (
@@ -147,7 +153,7 @@ function App() {
           <option value="Overlay">Overlay</option>
           <option value="Interstitial">Interstitial</option>
         </select>
-        <input type="file" onChange={handleFileUpload} />
+        <input type="file" ref={inputFileRef} onChange={handleFileUpload} />
         <button onClick={handleLogout}>ログアウト</button>
       </div>
     </>
