@@ -4,13 +4,19 @@
 
 .center {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 30vh;
+  flex-direction: column;
+  justify-content: flex-start; /* 縦方向の位置を開始点に */
+  align-items: center; /* 横方向は中央に */
+  height: auto; /* 高さを自動に */
+  padding: 20px 0; /* 上下の余白を追加するには */
 }
 
-select {
-  width: 200px;  /* 幅の変更 */
-  height: 50px;  /* 高さの変更 */
-  font-size: 20px;  /* フォントサイズの変更 */
+select, input, button {
+  width: 400px;
+  /* 幅の変更 */
+  height: 50px;
+  /* 高さの変更 */
+  font-size: 15px;
+  /* フォントサイズの変更 */
+  margin: 10px 0;  /* 上下に10pxのマージンを追加 */
 }

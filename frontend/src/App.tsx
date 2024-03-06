@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Highcharts from 'highcharts';
 import axios from 'axios';
+import './App.css';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -114,6 +115,7 @@ function App() {
           <option value="Overlay">Overlay</option>
           <option value="Interstitial">Interstitial</option>
         </select>
+        <input type="file" />
         <button onClick={handleLogout}>ログアウト</button>
       </div>
     </>
