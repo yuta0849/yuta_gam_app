@@ -24,3 +24,7 @@ node_modules/
 __pycache__/
 
 .env
+
+/database/.DS_Store
+
+/backend/uploads
