@@ -11,7 +11,7 @@ client_id = os.getenv('GOOGLE_CLIENT_ID')
 client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
 
 from flask import Flask, jsonify, redirect, request, session
-from backend import crud
+import crud
 from flask_cors import CORS
 from flask_login import LoginManager
 from requests_oauthlib import OAuth2Session
