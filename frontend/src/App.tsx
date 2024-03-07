@@ -9,6 +9,7 @@ function App() {
   const containerRef = useRef(null);
   const inputFileRef = useRef<HTMLInputElement | null>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     // input要素のリセット
@@ -18,7 +19,7 @@ function App() {
     
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/${selectedOption.toLowerCase()}`);
+        const response = await axios.get(`${API_URL}/api/${selectedOption.toLowerCase()}`);
 
         const formattedData = response.data.map((item: { avg_cpm: string, date: string }) => {
           return {
@@ -79,7 +80,7 @@ function App() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/loggedin', { withCredentials: true });
+        const response = await axios.get(`${API_URL}/loggedin`, { withCredentials: true });
         setLoggedIn(response.data.loggedIn);
       } catch (error) {
         console.error(`Error checking login status: ${error}`);
@@ -94,14 +95,14 @@ function App() {
   };
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:5000/login";
+    window.location.href = `${API_URL}/login`;
   }
 
   const handleLogout = async () => {
     if (chart !== null) {
       chart.destroy();
     }
-    await axios.get('http://localhost:5000/logout', { withCredentials: true });
+    await axios.get(`${API_URL}/logout`, { withCredentials: true });
     setLoggedIn(false);
   }
 
@@ -113,7 +114,7 @@ function App() {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await axios.post('http://localhost:5000/upload', formData, {
+    const response = await axios.post(`${API_URL}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 

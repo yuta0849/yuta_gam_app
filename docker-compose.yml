@@ -12,6 +12,8 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_HOST=${MYSQL_HOST}
+      - OAUTH_REDIRECT_URI=http://localhost:5000/token
+      - HOME_URL=http://localhost:3000
     depends_on:
       - database
   frontend:
@@ -20,6 +22,9 @@ services:
       - 3000:3000
     volumes:
       - ./frontend:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+      - ANOTHER_ENV_VAR=value
   database:
     build: ./database
     command: --secure-file-priv=""

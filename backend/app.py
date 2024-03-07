@@ -20,7 +20,8 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 login_manager = LoginManager(app)
-oauth = OAuth2Session(client_id, redirect_uri='http://localhost:5000/token', scope='openid https://www.googleapis.com/auth/userinfo.email')
+redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
+oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
 CORS(app, supports_credentials=True)
 
 # ルーティングもここで書く
@@ -66,7 +67,8 @@ def token():
         )
         # トークンをセッションに保存
         session['token'] = token  
-        return redirect("http://localhost:3000")
+        HOME_URL = os.getenv('HOME_URL')
+        return redirect(HOME_URL)
     except Exception as e:
         return "トークンの取得に失敗しました: " + str(e)
 
