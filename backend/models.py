@@ -5,7 +5,7 @@
 # データベースとテーブルが既に作成されている場合でも、アプリケーション内からデータベースを操作するためにはこのようなモデル定義が必要になる。
 
 from sqlalchemy import Column, Integer, String, Date, DECIMAL
-from .database import Base
+from database import Base
 
 class Adx_Data(Base):
     __tablename__ = "Adx_Data"

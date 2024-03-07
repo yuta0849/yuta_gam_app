@@ -1,6 +1,6 @@
 # データベース操作（Create、Read、Update、Delete）を行う関数を記述するためのファイル。
-from backend.database import SessionLocal, SQLALCHEMY_DATABASE_URL
-from backend.models import Adx_Data
+from database import SessionLocal, SQLALCHEMY_DATABASE_URL
+from models import Adx_Data
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
