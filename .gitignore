@@ -24,7 +24,9 @@ node_modules/
 __pycache__/
 
 .env
+.DS_Store
 
 /database/.DS_Store
+/database/GAMSampleData_RDS.sql
 
 /backend/uploads
