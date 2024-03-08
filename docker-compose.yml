@@ -6,14 +6,14 @@ services:
       - 5000:5000
     volumes:
       - ./:/app # ホストの.（ルートディレクトリ）をコンテナの/appディレクトリにマッピング
-      - ./backend/uploads:/app/backend/uploads # 新しく追加した行
+      - ./backend/uploads:/app/uploads # 新しく追加した行
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_HOST=${MYSQL_HOST}
-      - OAUTH_REDIRECT_URI=http://localhost:5000/token
-      - HOME_URL=http://localhost:3000
+      - OAUTH_REDIRECT_URI=${OAUTH_REDIRECT_URI}
+      - HOME_URL=${HOME_URL}
     depends_on:
       - database
   frontend:
@@ -23,7 +23,7 @@ services:
     volumes:
       - ./frontend:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
     environment:
-      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
       - ANOTHER_ENV_VAR=value
   database:
     build: ./database
