@@ -6,10 +6,8 @@ from sqlalchemy.orm import sessionmaker
 # app.pyで呼び出す
 def get_data(option):
     if option == "overlay":
-        # overlayデータを取得するためのクエリを実行
-         data = query_overlay_data()
+        data = query_overlay_data()
     elif option == "interstitial":
-        # interstitialデータを取得するためのクエリを実行
         data = query_interstitial_data()
     return data
 
