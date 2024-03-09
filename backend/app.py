@@ -26,10 +26,11 @@ redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
 oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
 CORS(app, supports_credentials=True)
 
+logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
+
 # ルーティングもここで書く
 @app.route('/')
 def hello_world():
-    logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
     return 'ここにGAMトレンドを表示したいかもね'
 
 @app.route('/sample')
