@@ -27,7 +27,7 @@ oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https:
 CORS(app, supports_credentials=True)
 
 
-logging.basicConfig(level=logging.INFO) 
+logging.basicConfig(level=logging.DEBUG)
 logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
 
 # ルーティングもここで書く
@@ -80,12 +80,19 @@ def token():
         httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
         samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
         
+         # ロギング （デバッグ情報）
+        logging.debug(f"secure_value: {secure_value}, httponly_value: {httponly_value}, samesite_value: {samesite_value}")
+        
         # レスポンスにクッキーの属性を設定
         response = app.make_response(redirect(HOME_URL))
         response.set_cookie('session', value=json.dumps(token), secure=secure_value, httponly=httponly_value, samesite=samesite_value)  # この行を編集します
         
+         # Cookieをセットした後のログ
+        logging.debug("set_cookie done successfully")
+        
         return response
     except Exception as e:
+        logging.exception("Error while setting the cookie:")
         return "トークンの取得に失敗しました: " + str(e)
     
 # ログイン状態を保持するエンドポイント
