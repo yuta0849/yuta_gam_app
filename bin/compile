@@ -1,9 +1,0 @@
-#!/bin/sh
-
-BUILD_DIR=$1
-cd "$BUILD_DIR/backend" || exit
-
-python3 -m venv .heroku/venv
-export PATH="$BUILD_DIR/backend/.heroku/venv/bin:$PATH"
-
-pip install -r requirements.txt
