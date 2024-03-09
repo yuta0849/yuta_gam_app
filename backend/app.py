@@ -16,6 +16,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from requests_oauthlib import OAuth2Session
 from werkzeug.utils import secure_filename
+import json
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
@@ -68,10 +69,20 @@ def token():
         # トークンをセッションに保存
         session['token'] = token  
         HOME_URL = os.getenv('HOME_URL')
-        return redirect(HOME_URL)
+        
+        # 開発環境と本番環境でcookieの設定を変更
+        secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
+        httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
+        samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
+        
+        # レスポンスにクッキーの属性を設定
+        response = app.make_response(redirect(HOME_URL))
+        response.set_cookie('session', value=json.dumps(token), secure=secure_value, httponly=httponly_value, samesite=samesite_value)  # この行を編集します
+        
+        return response
     except Exception as e:
         return "トークンの取得に失敗しました: " + str(e)
-
+    
 # ログイン状態を保持するエンドポイント
 @app.route('/loggedin')
 def loggedin():
