@@ -4,6 +4,7 @@ load_dotenv()
 import pandas as pd
 import sys
 import os
+import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # 安全でない輸送エラーを無視する機能
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -28,6 +29,7 @@ CORS(app, supports_credentials=True)
 # ルーティングもここで書く
 @app.route('/')
 def hello_world():
+    logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
     return 'ここにGAMトレンドを表示したいかもね'
 
 @app.route('/sample')
