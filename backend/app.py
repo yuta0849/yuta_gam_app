@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 client_id = os.getenv('GOOGLE_CLIENT_ID')
 client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+HOME_URL = os.getenv('HOME_URL')
 
 from flask import Flask, jsonify, redirect, request, session, abort
 import crud
@@ -24,7 +25,7 @@ app.secret_key = os.environ.get('SECRET_KEY')
 login_manager = LoginManager(app)
 redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
 oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
-CORS(app, supports_credentials=True)
+CORS(app, origins=[HOME_URL], supports_credentials=True)  # 指定したオリジンからのリクエストを許可するCORSの設定
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -78,7 +79,6 @@ def token():
         )
         # トークンをセッションに保存
         session['token'] = token  
-        HOME_URL = os.getenv('HOME_URL')
         
         # 開発環境と本番環境でcookieの設定を変更
         secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
