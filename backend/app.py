@@ -25,7 +25,7 @@ app.secret_key = os.environ.get('SECRET_KEY')
 login_manager = LoginManager(app)
 redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
 oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
-CORS(app, origins=['http://localhost:3000', 'https://yuta-gam-app.vercel.app/'], supports_credentials=True)  # 指定したオリジンからのリクエストを許可するCORSの設定
+CORS(app, origins=['http://localhost:3000', 'https://yuta-gam-app.vercel.app', 'https://yuta-gam-app-70ca7e13f399.herokuapp.com/loggedin'], supports_credentials=True)  # 指定したオリジンからのリクエストを許可するCORSの設定
 
 
 logging.basicConfig(level=logging.DEBUG)
