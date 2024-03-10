@@ -93,6 +93,7 @@ def token():
         response.set_cookie('session', value=json.dumps(token), secure=secure_value, httponly=httponly_value, samesite=samesite_value)  # この行を編集します
         
          # Cookieをセットした後のログ
+        logging.debug(f"After setting the cookie: session={json.dumps(token)}, secure={secure_value}, httponly={httponly_value}, samesite={samesite_value}")
         logging.debug("set_cookie done successfully")
         
         return response
