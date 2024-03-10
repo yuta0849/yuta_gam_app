@@ -11,7 +11,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 client_id = os.getenv('GOOGLE_CLIENT_ID')
 client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
 
-from flask import Flask, jsonify, redirect, request, session
+from flask import Flask, jsonify, redirect, request, session, abort
 import crud
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -52,6 +52,8 @@ def login():
         'https://accounts.google.com/o/oauth2/auth',
         access_type="offline",
         prompt="select_account")
+    # 'state' をセッションに保存
+    session['state'] = state  
     return redirect(authorization_url)
 
 # ログアウト時のエンドポイント
@@ -64,6 +66,9 @@ def logout():
 @app.route('/token')
 def token():
     code = request.args.get('code')
+    # エラーチェック： 'state' が一致することを確認
+    if request.args.get('state') != session.get('state'):
+        abort(403)
     try:
         token = oauth.fetch_token(
             'https://oauth2.googleapis.com/token',
