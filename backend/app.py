@@ -102,17 +102,17 @@ def token():
         # トークンをセッションに保存
         session['token'] = token  
         
-        # # 開発環境と本番環境でcookieの設定を変更
-        # secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
-        # httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
-        # samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
+        # 開発環境と本番環境でcookieの設定を変更
+        secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
+        httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
+        samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
         
         #  # ロギング （デバッグ情報）
         # logging.debug(f"secure_value: {secure_value}, httponly_value: {httponly_value}, samesite_value: {samesite_value}")
         
         # レスポンスにクッキーの属性を設定
         response = app.make_response(redirect(HOME_URL))
-        response.set_cookie('token', value=json.dumps(token))
+        response.set_cookie('token', value=json.dumps(token), secure=secure_value, httponly=httponly_value, samesite=samesite_value) 
         
         #  # Cookieをセットした後のログ
         # logging.debug(f"After setting the cookie: session={json.dumps(token)}, secure={secure_value}, httponly={httponly_value}, samesite={samesite_value}")
