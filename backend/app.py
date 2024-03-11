@@ -23,6 +23,21 @@ from werkzeug.utils import secure_filename
 import json
 
 app = Flask(__name__)
+
+# 開発/本番環境でcookie属性を分岐
+if os.getenv('FLASK_ENV') == 'production':
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='None'
+    )
+else:
+    app.config.update(
+        SESSION_COOKIE_SECURE=False,
+        SESSION_COOKIE_HTTPONLY=False,
+        SESSION_COOKIE_SAMESITE='Lax'
+    )
+    
 app.secret_key = os.environ.get('SECRET_KEY')
 login_manager = LoginManager(app)
 redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
@@ -87,21 +102,21 @@ def token():
         # トークンをセッションに保存
         session['token'] = token  
         
-        # 開発環境と本番環境でcookieの設定を変更
-        secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
-        httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
-        samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
+        # # 開発環境と本番環境でcookieの設定を変更
+        # secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
+        # httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
+        # samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
         
-         # ロギング （デバッグ情報）
-        logging.debug(f"secure_value: {secure_value}, httponly_value: {httponly_value}, samesite_value: {samesite_value}")
+        #  # ロギング （デバッグ情報）
+        # logging.debug(f"secure_value: {secure_value}, httponly_value: {httponly_value}, samesite_value: {samesite_value}")
         
         # レスポンスにクッキーの属性を設定
         response = app.make_response(redirect(HOME_URL))
-        response.set_cookie('token', value=json.dumps(token), secure=secure_value, httponly=httponly_value, samesite=samesite_value)  # この行を編集します
+        response.set_cookie('token')  # この行を編集します
         
-         # Cookieをセットした後のログ
-        logging.debug(f"After setting the cookie: session={json.dumps(token)}, secure={secure_value}, httponly={httponly_value}, samesite={samesite_value}")
-        logging.debug("set_cookie done successfully")
+        #  # Cookieをセットした後のログ
+        # logging.debug(f"After setting the cookie: session={json.dumps(token)}, secure={secure_value}, httponly={httponly_value}, samesite={samesite_value}")
+        # logging.debug("set_cookie done successfully")
         
         return response
     except Exception as e:
