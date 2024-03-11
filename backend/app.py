@@ -112,7 +112,7 @@ def token():
         
         # レスポンスにクッキーの属性を設定
         response = app.make_response(redirect(HOME_URL))
-        response.set_cookie('token')  # この行を編集します
+        response.set_cookie('token', value=json.dumps(token))
         
         #  # Cookieをセットした後のログ
         # logging.debug(f"After setting the cookie: session={json.dumps(token)}, secure={secure_value}, httponly={httponly_value}, samesite={samesite_value}")
