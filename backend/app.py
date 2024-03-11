@@ -3,8 +3,13 @@ import sys
 import os
 import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-# 安全でない輸送エラーを無視する機能
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+# FLASK_ENVの値によってOAUTHLIB_INSECURE_TRANSPORTの値を設定
+if os.getenv('FLASK_ENV') == 'production':
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '0'
+else:
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 client_id = os.getenv('GOOGLE_CLIENT_ID')
 client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
 HOME_URL = os.getenv('HOME_URL')
