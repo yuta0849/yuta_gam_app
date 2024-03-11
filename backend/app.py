@@ -27,7 +27,12 @@ app.secret_key = os.environ.get('SECRET_KEY')
 login_manager = LoginManager(app)
 redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
 oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
-CORS(app, origins=['http://localhost:3000', 'https://yuta-gam-app.vercel.app'], supports_credentials=True)  # 指定したオリジンからのリクエストを許可するCORSの設定
+
+# 開発/本番環境でCORSの設定を分岐
+if os.environ.get('FLASK_ENV') == 'development':
+    CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+else:
+    CORS(app, origins=['https://yuta-gam-app.vercel.app'], supports_credentials=True)
 
 
 logging.basicConfig(level=logging.DEBUG)
