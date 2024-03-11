@@ -8,13 +8,16 @@ services:
       - ./:/app # ホストの.（ルートディレクトリ）をコンテナの/appディレクトリにマッピング
       - ./backend/uploads:/app/uploads # 新しく追加した行
     environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} #追加
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET} #追加
+      - SECRET_KEY=${SECRET_KEY} #追加
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_HOST=${MYSQL_HOST}
       - OAUTH_REDIRECT_URI=${OAUTH_REDIRECT_URI}
       - HOME_URL=${HOME_URL}
-      - FLASK_ENV = ${FLASK_ENV}
+      - FLASK_ENV=${FLASK_ENV}
     depends_on:
       - database
   frontend:
