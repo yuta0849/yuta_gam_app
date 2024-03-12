@@ -1,28 +1,29 @@
-import pandas as pd
-import sys
-import os
-import logging
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# FLASK_ENVの値によってOAUTHLIB_INSECURE_TRANSPORTの値を設定
-if os.getenv('FLASK_ENV') == 'production':
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '0'
-else:
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
-client_id = os.getenv('GOOGLE_CLIENT_ID')
-client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-HOME_URL = os.getenv('HOME_URL')
-
 from flask import Flask, jsonify, redirect, request, session, abort
-import crud
 from flask_cors import CORS
 from flask_login import LoginManager
 from requests_oauthlib import OAuth2Session
 from werkzeug.utils import secure_filename
-import json
 
+import pandas as pd
+import sys
+import os
+import logging
+import crud
+import json
 app = Flask(__name__)
+
+# パスの設定
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# ログレベルの設定
+logging.basicConfig(level=logging.DEBUG)
+logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
+
+# 開発/本番環境でOAUTHLIB_INSECURE_TRANSPORTの値を設定
+if os.getenv('FLASK_ENV') == 'production':
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '0'
+else:
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # 開発/本番環境でcookie属性を分岐
 if os.getenv('FLASK_ENV') == 'production':
@@ -37,11 +38,6 @@ else:
         SESSION_COOKIE_HTTPONLY=False,
         SESSION_COOKIE_SAMESITE='Lax'
     )
-    
-app.secret_key = os.environ.get('SECRET_KEY')
-login_manager = LoginManager(app)
-redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
-oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
 
 # 開発/本番環境でCORSの設定を分岐
 if os.environ.get('FLASK_ENV') == 'development':
@@ -50,10 +46,17 @@ else:
     CORS(app, origins=['https://yuta-gam-app.vercel.app'], supports_credentials=True)
 
 
-logging.basicConfig(level=logging.DEBUG)
-logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
+# GoogleOAuthに必要な情報を環境変数から読み込み
+client_id = os.getenv('GOOGLE_CLIENT_ID')
+client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+HOME_URL = os.getenv('HOME_URL')
 
-# ルーティングもここで書く
+app.secret_key = os.environ.get('SECRET_KEY')
+login_manager = LoginManager(app)
+redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
+oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
+
+# ルーティング
 @app.route('/')
 def hello_world():
     return 'ここにGAMトレンドを表示したいかもね'
@@ -75,7 +78,6 @@ def login():
         'https://accounts.google.com/o/oauth2/auth',
         access_type="offline",
         prompt="select_account")
-    # 'state' をセッションに保存
     session['state'] = state  
     return redirect(authorization_url)
 
@@ -85,11 +87,10 @@ def logout():
     session.pop('token', None)
     return {"loggedIn": False}
 
-# Google OAuth2.0のリダイレクトURI, tokenを作成してホーム画面にリダイレクト
+# Google OAuth2.0のリダイレクトURIとなるエンドポイント, tokenを作成してホーム画面にリダイレクト
 @app.route('/token')
 def token():
     code = request.args.get('code')
-    # エラーチェック： 'state' が一致することを確認
     if request.args.get('state') != session.get('state'):
         abort(403)
     try:
@@ -99,7 +100,7 @@ def token():
             client_secret=client_secret, 
             code=code
         )
-        # トークンをセッションに保存
+        # GoogleOAuthから取得したトークンを、flaskセッションに'token'として保存
         session['token'] = token  
         
         # 開発環境と本番環境でcookieの設定を変更
@@ -107,16 +108,9 @@ def token():
         httponly_value = True if os.getenv('FLASK_ENV') == 'production' else False
         samesite_value = 'None' if os.getenv('FLASK_ENV') == 'production' else 'Lax'
         
-        #  # ロギング （デバッグ情報）
-        # logging.debug(f"secure_value: {secure_value}, httponly_value: {httponly_value}, samesite_value: {samesite_value}")
-        
-        # レスポンスにクッキーの属性を設定
+        # レスポンスにクッキーの属性を設定(ここで改めて付与しないといけないぽい)
         response = app.make_response(redirect(HOME_URL))
         response.set_cookie('token', value=json.dumps(token), secure=secure_value, httponly=httponly_value, samesite=samesite_value) 
-        
-        #  # Cookieをセットした後のログ
-        # logging.debug(f"After setting the cookie: session={json.dumps(token)}, secure={secure_value}, httponly={httponly_value}, samesite={samesite_value}")
-        # logging.debug("set_cookie done successfully")
         
         return response
     except Exception as e:
@@ -126,7 +120,7 @@ def token():
 # ログイン状態を保持するエンドポイント
 @app.route('/loggedin')
 def loggedin():
-    # セッションからトークンを取得し、ログイン状態をチェック
+    # flask sessionにtokenが存在するかをcheck, ブラウザはリクエスト時にtokenを含んだcookieをサーバーサイドに送付、flask側でデコードして照合
     if 'token' in session:
         return {"loggedIn": True}
     else:
@@ -139,7 +133,7 @@ ALLOWED_EXTENSIONS = {'csv'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# ファイルの拡張子が許可されているかどうかを確認します。
+# ファイルの拡張子が許可されているかどうかを確認
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -155,10 +149,10 @@ def upload_file():
        # ファイルを読み込む
         df = pd.read_csv(filepath)
 
-        # 最終行を除去
+        # csvファイルの最終行を除去
         df = df.iloc[:-1]
 
-        # ファイルの最初の3つの列を 'date', 'name' および 'avg_cpm' として取得
+        # csvファイルの最初の3つの列を 'date', 'name' および 'avg_cpm' として取得
         df = df.iloc[:, :3]
         df.columns = ['date', 'name', 'avg_cpm']
         
@@ -173,9 +167,6 @@ def upload_file():
         return jsonify(output_data), 200
     else:
         return {"Status": "File upload failed"}, 400
-
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

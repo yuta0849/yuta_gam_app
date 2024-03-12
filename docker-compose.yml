@@ -6,11 +6,11 @@ services:
       - 5000:5000
     volumes:
       - ./:/app # ホストの.（ルートディレクトリ）をコンテナの/appディレクトリにマッピング
-      - ./backend/uploads:/app/uploads # 新しく追加した行
+      - ./backend/uploads:/app/uploads
     environment:
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} #追加
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET} #追加
-      - SECRET_KEY=${SECRET_KEY} #追加
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SECRET_KEY=${SECRET_KEY}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
