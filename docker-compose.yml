@@ -5,7 +5,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./:/app # ホストの.（ルートディレクトリ）をコンテナの/appディレクトリにマッピング
+      - ./backend:/app/backend
       - ./backend/uploads:/app/uploads
     environment:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -28,6 +28,7 @@ services:
       - ./frontend:/app # ホストの./frontedディレクトリをコンテナの/appディレクトリにマッピング
     environment:
       - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - REACT_APP_SWAGGER_API_URL=${REACT_APP_SWAGGER_API_URL}
       - ANOTHER_ENV_VAR=value
   database:
     build: ./database

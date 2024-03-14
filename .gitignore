@@ -1,24 +1,27 @@
 # dependencies
-/fronted/node_modules
-/fronted/.pnp
-/fronted/.pnp.js
+/frontend/node_modules
+/frontend/.pnp
+/frontend/.pnp.js
 
 # testing
-/fronted/coverage
+/frontend/coverage
 
 # production
-/fronted/build
+/frontend/build
 
 # misc
-/fronted/.DS_Store
-/fronted/.env.local
-/fronted/.env.development.local
-/fronted/.env.test.local
-/fronted/.env.production.local
+/frontend/.DS_Store
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
 
-/fronted/npm-debug.log*
-/fronted/yarn-debug.log*
-/fronted/yarn-error.log*
+frontend/.env.development
+frontend/.env.production
+
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
 
 node_modules/
 __pycache__/

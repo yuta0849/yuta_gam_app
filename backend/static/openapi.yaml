@@ -1,0 +1,29 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "My API"
+paths:
+  /api/{option}:
+    get:
+      summary: "Get data by option"
+      parameters:
+        - name: option
+          in: path
+          required: true
+          type: string
+          description: "Option to select the data"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OptionData'
+definitions:
+  OptionData:
+    type: object
+    properties:
+      hogehoge:
+        type: string
+      foo:
+        type: string
