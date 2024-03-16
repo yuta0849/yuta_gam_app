@@ -1,8 +1,16 @@
 swagger: "2.0"
 info:
   version: "1.0.0"
-  title: "My API"
+  title: "yuta-gam-app API"
+  description: overlayとinterstitialのadx CPMのトレンドとユーザーの任意のユニットのAdXのCPMをCSVデータをアップロードすることで確認ができるApp。
+
 paths:
+  /:
+    get:
+      summary: "GAMトレンドの表示"
+  /sample:
+    get:
+      summary: "サンプルページの表示"
   /api/{option}:
     get:
       summary: "Get data by option"
@@ -19,6 +27,35 @@ paths:
             type: array
             items:
               $ref: '#/definitions/OptionData'
+  /login:
+    get:
+      summary: Google OAuth2.0の認証ページにリダイレクト
+  /logout:
+    get:
+      summary: ログアウトし、ログイン状態を返す
+  /token:
+    get:
+      summary: Google OAuth2.0のトークン生成とホームにリダイレクト
+  /loggedin:
+    get:
+      summary: ログイン状態の保持
+  /upload:
+    post:
+      summary: ファイルアップロードの処理
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        200:
+          description: File uploaded successfully
+        400:
+          description: File upload failed
+
 definitions:
   OptionData:
     type: object
