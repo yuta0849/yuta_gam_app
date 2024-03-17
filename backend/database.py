@@ -14,6 +14,12 @@ SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
 # print(SQLALCHEMY_DATABASE_URL)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
+try:
+    with engine.connect() as connection:
+        result = connection.execute("SELECT 1")
+        print(result.fetchone())
+except Exception as e:
+    print("データベース接続に失敗しました:", e)
 
 Base = declarative_base()
 
