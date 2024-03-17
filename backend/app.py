@@ -133,7 +133,7 @@ def loggedin():
     else:
         return {"loggedIn": False}
     
-# ログインユーザー返すエンドポイント
+# ログインユーザーの名前を返すエンドポイント
 @app.route("/user", methods=["GET"])
 def get_user_info():
     return {"username": session.get('username', '')}

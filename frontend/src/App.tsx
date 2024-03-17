@@ -10,6 +10,7 @@ function App() {
   const inputFileRef = useRef<HTMLInputElement | null>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
   const API_URL = process.env.REACT_APP_API_URL;
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     // input要素のリセット
@@ -80,9 +81,15 @@ function App() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
+        // ログイン状態の確認
         const response = await axios.get(`${API_URL}/loggedin`, { withCredentials: true });
+        // 下記がなぜか初回レンダリング時に2回呼び出されている(開発環境のみ？)
         console.log(response.data);
         setLoggedIn(response.data.loggedIn);
+        
+        // ユーザー名の取得
+        const userResponse = await axios.get(`${API_URL}/user`, { withCredentials: true });
+        setUsername(userResponse.data.username);
       } catch (error) {
         console.error(`Error checking login status: ${error}`);
       }
@@ -90,6 +97,7 @@ function App() {
 
     checkLoginStatus();
   }, []);
+
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
@@ -156,6 +164,7 @@ function App() {
           <option value="Interstitial">Interstitial</option>
         </select>
         <input type="file" ref={inputFileRef} onChange={handleFileUpload} />
+        <h3>{username} さん</h3>
         <button onClick={handleLogout}>ログアウト</button>
       </div>
     </>
