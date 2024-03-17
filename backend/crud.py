@@ -35,43 +35,40 @@ def get_data(option):
 
 
 def query_overlay_data():
-    # overlayデータを取得するためのSQLクエリ
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    query = text("""
-        SELECT
-            date,
-            (SUM(adx_revenue) / SUM(adx_impressions)) * 1000 as avg_cpm
-        FROM
-            Adx_Data
-        WHERE
-            ad_unit LIKE '%overlay%'
-        GROUP BY
-            date
+    # セッションの生成 
+    db = SessionLocal()
+
+    query = text(""" 
+    SELECT date, (SUM(adx_revenue) / SUM(adx_impressions)) * 1000 as avg_cpm 
+    FROM Adx_Data 
+    WHERE ad_unit LIKE '%overlay%' 
+    GROUP BY date 
     """)
-    result = session.execute(query)
-    session.close()
+
+    result = db.execute(query)
+
+    # セッションをクローズ
+    db.close()
+
     data = [{'date': row.date, 'avg_cpm': row.avg_cpm} for row in result]
     return data
 
+
 def query_interstitial_data():
-    # interstitialデータを取得するためのSQLクエリ
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    query = text("""
-        SELECT
-            date,
-            (SUM(adx_revenue) / SUM(adx_impressions)) * 1000 as avg_cpm
-        FROM
-            Adx_Data
-        WHERE
-            ad_unit LIKE '%interstitial%'
-        GROUP BY
-            date
+    # セッションの生成 
+    db = SessionLocal()
+
+    query = text(""" 
+    SELECT date, (SUM(adx_revenue) / SUM(adx_impressions)) * 1000 as avg_cpm 
+    FROM Adx_Data 
+    WHERE ad_unit LIKE '%interstitial%' 
+    GROUP BY date 
     """)
-    result = session.execute(query)
-    session.close()
+
+    result = db.execute(query)
+
+    # セッションをクローズ
+    db.close()
+
     data = [{'date': row.date, 'avg_cpm': row.avg_cpm} for row in result]
     return data

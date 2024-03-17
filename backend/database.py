@@ -11,6 +11,7 @@ dbname = os.environ['MYSQL_DATABASE']
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
 try:
     with engine.connect() as connection:
         result = connection.execute("SELECT 1")
