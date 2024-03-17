@@ -1,7 +1,29 @@
 from database import SessionLocal, SQLALCHEMY_DATABASE_URL
-from models import Adx_Data
+from models import User
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
+def create_user(google_user_id, name, email):
+    # セッションの生成
+    db = SessionLocal()
+
+    user = User(google_user_id=google_user_id, name=name, email=email)
+
+    # ユーザを追加
+    db.add(user)
+    db.commit()
+
+    # セッションをクローズ
+    db.close()
+
+    return user
+
+def get_user_by_google_id(google_user_id):
+    # セッションの生成
+    with SessionLocal() as db:
+        # Userモデルから指定されたgoogle_user_idを持つユーザーを探します
+        user = db.query(User).filter(User.google_user_id == google_user_id).first()   
+    return user
 
 # app.pyで呼び出す
 def get_data(option):

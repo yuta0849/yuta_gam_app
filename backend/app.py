@@ -108,7 +108,14 @@ def token():
         USER_INFO = "https://www.googleapis.com/oauth2/v3/userinfo"
         response = get(USER_INFO, headers={"Authorization": "Bearer " + token["access_token"]})
         user_info = response.json()
-        session["username"] = user_info["name"]  # ここでユーザー名をセッションに保存  
+        session["username"] = user_info["name"]  # ここでユーザー名をセッションに保存
+        session["userid"] = user_info["sub"] # ここでUserIDをセッションに保存
+        
+        # DB、usersテーブルでユーザーを検索
+        user = crud.get_user_by_google_id(session["userid"])
+        # ユーザーが存在しない場合は新規作成
+        if user is None:
+            user = crud.create_user(session["userid"], user_info["name"], user_info["email"])
         
         # 開発環境と本番環境でcookieの設定を変更
         secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
