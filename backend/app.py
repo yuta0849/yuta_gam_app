@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, redirect, request, session, abort
+from requests import get
 from flask_cors import CORS
 from flask_login import LoginManager
 from requests_oauthlib import OAuth2Session
@@ -54,7 +55,7 @@ HOME_URL = os.getenv('HOME_URL')
 app.secret_key = os.environ.get('SECRET_KEY')
 login_manager = LoginManager(app)
 redirect_uri = os.getenv('OAUTH_REDIRECT_URI')
-oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.email')
+oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope='openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')
 
 # ルーティング
 @app.route('/')
@@ -101,7 +102,13 @@ def token():
             code=code
         )
         # GoogleOAuthから取得したトークンを、flaskセッションに'token'として保存
-        session['token'] = token  
+        session['token'] = token
+        
+        # Googleからユーザー情報を取得
+        USER_INFO = "https://www.googleapis.com/oauth2/v3/userinfo"
+        response = get(USER_INFO, headers={"Authorization": "Bearer " + token["access_token"]})
+        user_info = response.json()
+        session["username"] = user_info["name"]  # ここでユーザー名をセッションに保存  
         
         # 開発環境と本番環境でcookieの設定を変更
         secure_value = True if os.getenv('FLASK_ENV') == 'production' else False
@@ -125,6 +132,11 @@ def loggedin():
         return {"loggedIn": True}
     else:
         return {"loggedIn": False}
+    
+# ログインユーザー返すエンドポイント
+@app.route("/user", methods=["GET"])
+def get_user_info():
+    return {"username": session.get('username', '')}
 
 
 # ファイルアップロード時の処理
