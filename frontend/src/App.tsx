@@ -11,6 +11,7 @@ function App() {
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
   const API_URL = process.env.REACT_APP_API_URL;
   const [username, setUsername] = useState('');
+  const [uploadedFile, setUploadedFile] = React.useState(false);
 
   useEffect(() => {
     // input要素のリセット
@@ -76,6 +77,7 @@ function App() {
     }
 
     fetchData();
+    setUploadedFile(false); 
   }, [selectedOption]);
 
   useEffect(() => {
@@ -96,6 +98,7 @@ function App() {
     }
 
     checkLoginStatus();
+    setUploadedFile(false); 
   }, []);
 
 
@@ -145,6 +148,11 @@ function App() {
         });
       }
     }
+    setUploadedFile(true); 
+  };
+
+  const handleSaveUploadData = async () => {
+    //ユーザーがアップロード、HighChartsように整形したデータを保存 
   };
 
   if (!loggedIn) {
@@ -164,6 +172,7 @@ function App() {
           <option value="Interstitial">Interstitial</option>
         </select>
         <input type="file" ref={inputFileRef} onChange={handleFileUpload} />
+        {uploadedFile && <button onClick={handleSaveUploadData}>アップロードデータを保存</button>}
         <h3>{username} さん</h3>
         <button onClick={handleLogout}>ログアウト</button>
       </div>
