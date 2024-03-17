@@ -12,6 +12,9 @@ function App() {
   const API_URL = process.env.REACT_APP_API_URL;
   const [username, setUsername] = useState('');
   const [uploadedFile, setUploadedFile] = React.useState(false);
+  // アップロードされるファイルを一時的に保持するためのstate（この例ではuploadData）
+  const [uploadData, setUploadData] = useState(null);
+
 
   useEffect(() => {
     // input要素のリセット
@@ -149,10 +152,20 @@ function App() {
       }
     }
     setUploadedFile(true); 
+    setUploadData(response.data);
   };
 
-  const handleSaveUploadData = async () => {
-    //ユーザーがアップロード、HighChartsように整形したデータを保存 
+  const handleSaveUploadData = () => {
+    console.log(uploadData);
+    // if (uploadData) {
+    //   const response = await axios.post(`${API_URL}/upload`, uploadData);
+  
+    //   if (response.data.status === 'success') {
+    //     // データ保存成功時の処理
+    //   } else {
+    //     // データ保存失敗時の処理
+    //   }
+    // }
   };
 
   if (!loggedIn) {
