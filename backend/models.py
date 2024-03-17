@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, DECIMAL
-from database import Base
+from os import getenv
+from database import Base, engine
 
 class User(Base):
     __tablename__ = "users"
@@ -18,3 +19,7 @@ class Adx_Data(Base):
     adx_impressions = Column(Integer)
     adx_revenue = Column(DECIMAL(10, 2))
     avg_adx_cpm = Column(DECIMAL(10, 2))
+
+# FLASK_ENVがproductionだった場合にのみテーブルを作成(開発環境ではdockercontainer内でSQLを実行している)
+if getenv('FLASK_ENV') == 'production':
+    User.__table__.create(bind=engine, checkfirst=True)
