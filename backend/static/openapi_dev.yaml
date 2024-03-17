@@ -1,0 +1,155 @@
+swagger: "2.0"
+# 開発環境用のhost
+host: "localhost:5000" 
+schemes:
+  - http
+info:
+  version: "1.0.0"
+  title: "yuta-gam-app API"
+  description: overlayとinterstitialのadx CPMのトレンドとユーザーの任意のユニットのAdXのCPMをCSVデータをアップロードすることで確認ができるApp。
+
+paths:
+  /:
+    get:
+      summary: サンプルページ1の表示
+      responses:
+        200:
+          description: ただ文字列がreturnされます
+          content:
+            text/plain:
+              schema:
+                type: string
+  /sample:
+    get:
+      summary: サンプルページ2の表示
+      responses:
+        200:
+          description: ただ文字列がreturnされます
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/{option}:
+    get:
+      summary: OverlayまたはInterstitialの日別、AdxCPM平均値の取得
+      description: |
+        ユーザーがoverlayまたはinterstitialを選択することで、それぞれのAdXCPMの日別CPMを取得します。
+        このエンドポイントで取得したデータをフロントにてHighChartsで描画します。
+        optionはoverlay,interstitialのどちらかとなります。
+      parameters:
+        - name: option
+          in: path
+          required: true
+          type: string
+          description: "Option to select the data"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OptionData'
+  /login:
+    get:
+      summary: Google OAuth2.0の認証ページにリダイレクト
+      description: |
+        GoogleのOAuth2.0認証ページにリダイレクトします。
+        このエンドポイントはブラウザを使って実行するべきです。Swagger UIで直接テストすることはできません。
+      responses:
+        302:
+          headers:
+            Location:
+              schema:
+                type: string
+                example: https://accounts.google.com/o/oauth2/auth?...
+  /logout:
+    get:
+      summary: ログアウト処理
+      description: |
+        このエンドポイントはログアウト動作を担当します。
+        具体的には、Flaskセッションからトークンをpop（削除）し、{"loggedIn": False}を返します。これにより、ユーザーはログアウト状態となります。
+      responses:
+        200:
+          description: ログアウトが成功し、ユーザーのログイン状態がFalseになりました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  loggedIn:
+                    type: boolean
+              example:
+                loggedIn: false
+  /token:
+    get:
+      summary: Google OAuth2.0のトークン生成とホームにリダイレクト
+      description: |
+          Googleからリダイレクトした後に呼び出され、アクセストークンを生成した後にホーム画面にリダイレクトします。
+          このエンドポイントにはGoogle OAuth2.0からのリダイレクトが必要であり、このプロセスはSwagger UI上ではシミュレートすることができません。
+          エンドポイントのテストはフロントエンドアプリケーションや専用のHTTPクライアントを使用して行う必要があります。
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: Google OAuth2.0から提供される一時的なコード。
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          description: CSRF攻撃を防ぐために使用される一時的なランダム文字列。リクエストとセッションの値が一致しなければなりません。
+          schema:
+            type: string          
+      responses:
+        200:
+          description: トークンが正常に生成され、ユーザーがホーム画面にリダイレクトされました。
+        403:
+          description: stateパラメータが一致しないため、リクエストが拒否されました。
+        500:
+          description: トークンの生成に失敗し、エラーメッセージが返されました。
+  /loggedin:
+    get:
+      summary: ログイン状態の保持
+      description: |
+        クッキー情報を照合し、Flaskセッション内に一致するトークンが存在するか確認します。
+        トークンが存在する場合、ログイン状態がtrueであることを示すJSONレスポンスを返します。
+        トークンが存在しない場合、ログイン状態がfalseであることを示すJSONレスポンスを返します。
+      responses:
+        '200':
+          description: ユーザーのログイン状態を返す
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  loggedIn:
+                    type: boolean
+  /upload:
+    post:
+      summary: ファイルアップロードの処理
+      description: |
+        ユーザーがcsvファイルをアップロートすることで、CPMの推移をトレンドデータと比較することができます。
+        このエンドポイントではフロントエンドでHighChartsにseriesを追加すつための形式の変換が行われます。
+        GAMにて、「日付」、「ユニット名」、「AdXCPM」を項目としてレポートを引き、見出しを削除してCSVでダウンロードしたDataをuploadしてください。
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        200:
+          description: File uploaded successfully
+        400:
+          description: File upload failed
+
+definitions:
+  OptionData:
+    type: object
+    properties:
+      hogehoge:
+        type: string
+      foo:
+        type: string

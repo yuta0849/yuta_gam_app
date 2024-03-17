@@ -1,4 +1,8 @@
 swagger: "2.0"
+# 本番環境用のhost
+host: "yuta-gam-app-70ca7e13f399.herokuapp.com" 
+schemes:
+  - https
 info:
   version: "1.0.0"
   title: "yuta-gam-app API"
@@ -31,6 +35,7 @@ paths:
       description: |
         ユーザーがoverlayまたはinterstitialを選択することで、それぞれのAdXCPMの日別CPMを取得します。
         このエンドポイントで取得したデータをフロントにてHighChartsで描画します。
+        optionはoverlay,interstitialのどちらかとなります。
       parameters:
         - name: option
           in: path
@@ -47,11 +52,11 @@ paths:
   /login:
     get:
       summary: Google OAuth2.0の認証ページにリダイレクト
+      description: |
+        GoogleのOAuth2.0認証ページにリダイレクトします。
+        このエンドポイントはブラウザを使って実行するべきです。Swagger UIで直接テストすることはできません。
       responses:
         302:
-          description: |
-            このエンドポイントはブラウザを使って実行するべきです。Swagger UIで直接テストすることはできません。
-            このエンドポイントはGoogleのOAuth2.0認証ページにリダイレクトします。
           headers:
             Location:
               schema:
