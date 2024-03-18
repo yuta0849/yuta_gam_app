@@ -11,13 +11,15 @@ function App() {
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
   const API_URL = process.env.REACT_APP_API_URL;
   const [username, setUsername] = useState('');
+  // アップロードされたファイルの有無を保持するstate
   const [uploadedFile, setUploadedFile] = useState(false);
-  // アップロードされるファイルを一時的に保持するためのstate（この例ではuploadData）
+  // アップロードされるHighCharts用に成形されたデータを一時的に保持するためのstate
   const [uploadData, setUploadData] = useState(null);
+  // データ保存時、保存名を入力するinput要素の表示/非表示を保持するstate
   const [isInputVisible, setIsInputVisible] = useState(false);
   // ユーザーが入力するデータ名を保存するstate
   const [inputName, setInputName] = useState("");
-  // ステートを追加（保存ボタンを表示するかどうかのブール値変数）
+  // 保存名を入力時、保存ボタンを表示するかどうかを保持するstate
   const [isSaveButtonVisible, setSaveButtonVisible] = useState(false);
 
   useEffect(() => {
@@ -190,8 +192,7 @@ function App() {
       const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject, { withCredentials: true });
       if (response.data.status === 'success') {
         // データ保存成功時の処理
-        setIsInputVisible(false);       // 名前入力ボタンを非表示にする
-        setSaveButtonVisible(false);    // 保存ボタンを非表示にする
+        setUploadedFile(false);       // UploadFileをfalseにすることで保存ボタンも消える
         console.log('save成功');
       } else {
         // データ保存失敗時の処理
