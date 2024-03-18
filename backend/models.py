@@ -20,6 +20,17 @@ class Adx_Data(Base):
     adx_revenue = Column(DECIMAL(10, 2))
     avg_adx_cpm = Column(DECIMAL(10, 2))
 
+class UserUploadedData(Base):
+    __tablename__ = 'user_uploaded_data'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(String(255), nullable=False)
+    save_data_name = Column(String(255), nullable=False)
+    date = Column(Date, nullable=False)
+    ad_unit = Column(String(255), nullable=False)
+    avg_adx_cpm = Column(DECIMAL(10, 2), nullable=False)
+
 # FLASK_ENVがproductionだった場合にのみテーブルを作成(開発環境ではdockercontainer内でSQLを実行している)
 if getenv('FLASK_ENV') == 'production':
     User.__table__.create(bind=engine, checkfirst=True)
+    UserUploadedData.__table__.create(bind=engine, checkfirst=True)

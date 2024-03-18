@@ -12,6 +12,15 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS user_uploaded_data (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id VARCHAR(255) NOT NULL,
+  save_data_name VARCHAR(255) NOT NULL,
+  date DATE,
+  ad_unit VARCHAR(255) NOT NULL,
+  avg_adx_cpm DECIMAL(10, 2) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS Adx_Data (
   id INT PRIMARY KEY AUTO_INCREMENT,
   date DATE,

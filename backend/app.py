@@ -186,6 +186,12 @@ def upload_file():
         return jsonify(output_data), 200
     else:
         return {"Status": "File upload failed"}, 400
+    
+@app.route('/saveuploaddata', methods=['POST'])
+def save_uploaded_file():
+    uploadObject = request.get_json()
+    crud.save_uploaded_data(session['userid'], uploadObject)
+    return {'status': 'success'}, 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

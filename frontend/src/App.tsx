@@ -172,31 +172,33 @@ function App() {
     }
   };
 
-  // 保存ボタンクリック時のハンドラ－
-  const handleSaveUploadData = () => {
-    const uploadObject = {
-      dataName: inputName,
-      data: uploadData
-    }
-    console.log(uploadObject);
-  }
-
-  // const handleSaveUploadData = async () => {
-  //   if (uploadData) {
-  //     const uploadObject = {
-  //       dataName: inputName,
-  //       data: uploadData
-  //     }
-  //     const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject);
-  //     if (response.data.status === 'success') {
-  //       // データ保存成功時の処理
-  //       setIsInputVisible(false);       // 名前入力ボタンを非表示にする
-  //       setSaveButtonVisible(false);    // 保存ボタンを非表示にする
-  //     } else {
-  //       // データ保存失敗時の処理
-  //     }
+  // // 保存ボタンクリック時のハンドラ－
+  // const handleSaveUploadData = () => {
+  //   const uploadObject = {
+  //     dataName: inputName,
+  //     data: uploadData
   //   }
-  // };
+  //   console.log(uploadObject);
+  // }
+
+  const handleSaveUploadData = async () => {
+    if (uploadData) {
+      const uploadObject = {
+        dataName: inputName,
+        data: uploadData
+      }
+      const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject, { withCredentials: true });
+      if (response.data.status === 'success') {
+        // データ保存成功時の処理
+        setIsInputVisible(false);       // 名前入力ボタンを非表示にする
+        setSaveButtonVisible(false);    // 保存ボタンを非表示にする
+        console.log('save成功');
+      } else {
+        // データ保存失敗時の処理
+        console.log('save失敗');
+      }
+    }
+  };
 
   // uploadedFileが変化したときに走るuseEffectフック
   useEffect(() => {

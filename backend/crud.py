@@ -1,5 +1,5 @@
 from database import SessionLocal, SQLALCHEMY_DATABASE_URL
-from models import User
+from models import User, UserUploadedData
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
@@ -72,3 +72,19 @@ def query_interstitial_data():
 
     data = [{'date': row.date, 'avg_cpm': row.avg_cpm} for row in result]
     return data
+
+def save_uploaded_data(user_id, uploadObject):
+    save_data_name = uploadObject["dataName"]
+    data = uploadObject["data"]
+    
+    with SessionLocal() as db:
+        for record in data:
+            new_data = UserUploadedData(
+                user_id=user_id,
+                save_data_name=save_data_name,
+                date=record['date'],
+                ad_unit=record['name'],
+                avg_adx_cpm=record['avg_cpm']
+            )
+            db.add(new_data)
+        db.commit()
