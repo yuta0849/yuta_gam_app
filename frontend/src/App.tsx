@@ -11,17 +11,21 @@ function App() {
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
   const API_URL = process.env.REACT_APP_API_URL;
   const [username, setUsername] = useState('');
-  const [uploadedFile, setUploadedFile] = React.useState(false);
+  const [uploadedFile, setUploadedFile] = useState(false);
   // アップロードされるファイルを一時的に保持するためのstate（この例ではuploadData）
   const [uploadData, setUploadData] = useState(null);
-
+  const [isInputVisible, setIsInputVisible] = useState(false);
+  // ユーザーが入力するデータ名を保存するstate
+  const [inputName, setInputName] = useState("");
+  // ステートを追加（保存ボタンを表示するかどうかのブール値変数）
+  const [isSaveButtonVisible, setSaveButtonVisible] = useState(false);
 
   useEffect(() => {
     // input要素のリセット
     if (inputFileRef.current) {
       inputFileRef.current.value = '';
     }
-    
+
     const fetchData = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/${selectedOption.toLowerCase()}`);
@@ -80,7 +84,7 @@ function App() {
     }
 
     fetchData();
-    setUploadedFile(false); 
+    setUploadedFile(false);
   }, [selectedOption]);
 
   useEffect(() => {
@@ -91,7 +95,7 @@ function App() {
         // 下記がなぜか初回レンダリング時に2回呼び出されている(開発環境のみ？)
         console.log(response.data);
         setLoggedIn(response.data.loggedIn);
-        
+
         // ユーザー名の取得
         const userResponse = await axios.get(`${API_URL}/user`, { withCredentials: true });
         setUsername(userResponse.data.username);
@@ -101,7 +105,7 @@ function App() {
     }
 
     checkLoginStatus();
-    setUploadedFile(false); 
+    setUploadedFile(false);
   }, []);
 
 
@@ -151,22 +155,56 @@ function App() {
         });
       }
     }
-    setUploadedFile(true); 
+    setUploadedFile(true);
     setUploadData(response.data);
   };
 
-  const handleSaveUploadData = () => {
-    console.log(uploadData);
-    // if (uploadData) {
-    //   const response = await axios.post(`${API_URL}/upload`, uploadData);
-  
-    //   if (response.data.status === 'success') {
-    //     // データ保存成功時の処理
-    //   } else {
-    //     // データ保存失敗時の処理
-    //   }
-    // }
+  // アップロードボタンクリック時のハンドラ－
+  const handleUploadButtonClick = () => {
+    setIsInputVisible(true);
   };
+
+  // 名前入力が完了したら保存ボタンを表示させる関数
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputName(event.target.value);
+    if (event.target.value !== "") { // Inputが空でない場合に限り
+      setSaveButtonVisible(true);    // 保存ボタンを表示
+    }
+  };
+
+  // 保存ボタンクリック時のハンドラ－
+  const handleSaveUploadData = () => {
+    const uploadObject = {
+      dataName: inputName,
+      data: uploadData
+    }
+    console.log(uploadObject);
+  }
+
+  // const handleSaveUploadData = async () => {
+  //   if (uploadData) {
+  //     const uploadObject = {
+  //       dataName: inputName,
+  //       data: uploadData
+  //     }
+  //     const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject);
+  //     if (response.data.status === 'success') {
+  //       // データ保存成功時の処理
+  //       setIsInputVisible(false);       // 名前入力ボタンを非表示にする
+  //       setSaveButtonVisible(false);    // 保存ボタンを非表示にする
+  //     } else {
+  //       // データ保存失敗時の処理
+  //     }
+  //   }
+  // };
+
+  // uploadedFileが変化したときに走るuseEffectフック
+  useEffect(() => {
+    if (!uploadedFile) {
+      setIsInputVisible(false);
+      setSaveButtonVisible(false);
+    }
+  }, [uploadedFile]); // この配列にuploadedFileを入れることで、uploadedFileが変わるたびにこのuseEffectが走ります
 
   if (!loggedIn) {
     return (
@@ -185,7 +223,9 @@ function App() {
           <option value="Interstitial">Interstitial</option>
         </select>
         <input type="file" ref={inputFileRef} onChange={handleFileUpload} />
-        {uploadedFile && <button onClick={handleSaveUploadData}>アップロードデータを保存</button>}
+        {uploadedFile && <button onClick={handleUploadButtonClick}>アップロードデータを保存</button>}
+        {isInputVisible && (<input type="text" value={inputName} onChange={handleInputChange} placeholder="保存名を入力してください" />)}
+        {isSaveButtonVisible && <button onClick={handleSaveUploadData}>保存</button>}
         <h3>{username} さん</h3>
         <button onClick={handleLogout}>ログアウト</button>
       </div>
