@@ -189,16 +189,25 @@ function App() {
         dataName: inputName,
         data: uploadData
       }
-      const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject, { withCredentials: true });
-      if (response.data.status === 'success') {
+      const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject, { withCredentials: true })
+        .catch((error) => {
+          // サーバーから返されたエラーレスポンスを処理 
+          if (error.response) {
+            console.log('Error:', error.response.data);
+          } else {
+            console.log('Error:', error.message);
+          }
+        });
+
+      if (response && response.status === 200) {
         // データ保存成功時の処理
-        setUploadedFile(false);       // UploadFileをfalseにすることで保存ボタンも消える
+        setUploadedFile(false);
         console.log('save成功');
-      } else {
-        // データ保存失敗時の処理
-        console.log('save失敗');
+        console.log(uploadObject);
       }
     }
+    setInputName('');  // ここで入力フィールドをクリア
+    setSaveButtonVisible(false);  // 保存ボタンも非表示にする
   };
 
   // uploadedFileが変化したときに走るuseEffectフック

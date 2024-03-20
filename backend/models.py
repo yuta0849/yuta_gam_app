@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Date, DECIMAL
+from sqlalchemy import Column, Integer, String, Date, DECIMAL, DateTime
 from os import getenv
 from database import Base, engine
+import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -24,6 +25,7 @@ class UserUploadedData(Base):
     __tablename__ = 'user_uploaded_data'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    upload_timestamp = Column(DateTime)
     user_id = Column(String(255), nullable=False)
     save_data_name = Column(String(255), nullable=False)
     date = Column(Date, nullable=False)

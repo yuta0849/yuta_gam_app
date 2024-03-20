@@ -2,6 +2,7 @@ from database import SessionLocal, SQLALCHEMY_DATABASE_URL
 from models import User, UserUploadedData
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+import datetime
 
 def create_user(google_user_id, name, email):
     # セッションの生成
@@ -77,14 +78,22 @@ def save_uploaded_data(user_id, uploadObject):
     save_data_name = uploadObject["dataName"]
     data = uploadObject["data"]
     
+    upload_timestamp = datetime.datetime.utcnow()
+    
     with SessionLocal() as db:
         for record in data:
+            if db.query(UserUploadedData).filter_by(user_id=user_id, save_data_name=save_data_name).first():
+                # 同じuser_idとsave_data_nameの組み合わせがすでに存在する場合はエラーを返す
+                return {"error": "The same save_data_name already exists."}
             new_data = UserUploadedData(
                 user_id=user_id,
+                upload_timestamp=upload_timestamp,
                 save_data_name=save_data_name,
                 date=record['date'],
                 ad_unit=record['name'],
-                avg_adx_cpm=record['avg_cpm']
+                avg_adx_cpm=record['avg_cpm'],   
             )
             db.add(new_data)
         db.commit()
+    # 成功メッセージを返す
+    return {"status": "success"}

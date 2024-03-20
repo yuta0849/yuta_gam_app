@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS user_uploaded_data (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  upload_timestamp TIMESTAMP,
   user_id VARCHAR(255) NOT NULL,
   save_data_name VARCHAR(255) NOT NULL,
   date DATE,

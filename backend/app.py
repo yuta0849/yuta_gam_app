@@ -189,9 +189,20 @@ def upload_file():
     
 @app.route('/saveuploaddata', methods=['POST'])
 def save_uploaded_file():
-    uploadObject = request.get_json()
-    crud.save_uploaded_data(session['userid'], uploadObject)
-    return {'status': 'success'}, 200
+    try:
+        uploadObject = request.get_json()
+        result = crud.save_uploaded_data(session['userid'], uploadObject)
+        
+        if "error" in result:
+            # `save_uploaded_data`からエラーメッセージが返された場合、クライアントにエラーメッセージとステータスコード400を返す
+            return {'error': result["error"]}, 400
+
+        return {'status': 'success'}, 200
+
+    except Exception as e:
+        # 関数実行中に予期しないエラーが発生した場合は、そのエラーメッセージと一緒に500エラーを返す
+        logging.error("An error occurred in save_uploaded_file: " + str(e))
+        return {'error': str(e)}, 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
