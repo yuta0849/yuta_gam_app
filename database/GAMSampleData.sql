@@ -12,14 +12,32 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS user_uploaded_data (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+-- CREATE TABLE IF NOT EXISTS user_uploaded_data (
+--   id INT PRIMARY KEY AUTO_INCREMENT,
+--   upload_timestamp TIMESTAMP,
+--   user_id VARCHAR(255) NOT NULL,
+--   save_data_name VARCHAR(255) NOT NULL,
+--   date DATE,
+--   ad_unit VARCHAR(255) NOT NULL,
+--   avg_adx_cpm DECIMAL(10, 2) NOT NULL,
+--   UNIQUE KEY uix_1 (user_id, save_data_name)
+-- );
+
+CREATE TABLE IF NOT EXISTS uploaded_datasets (
+  dataset_id INT PRIMARY KEY AUTO_INCREMENT,
   upload_timestamp TIMESTAMP,
   user_id VARCHAR(255) NOT NULL,
   save_data_name VARCHAR(255) NOT NULL,
-  date DATE,
+  UNIQUE KEY uix_1 (user_id, save_data_name)
+);
+
+CREATE TABLE IF NOT EXISTS uploaded_data (
+  data_id INT PRIMARY KEY AUTO_INCREMENT,
+  dataset_id INT,
+  date DATE NOT NULL,
   ad_unit VARCHAR(255) NOT NULL,
-  avg_adx_cpm DECIMAL(10, 2) NOT NULL
+  avg_adx_cpm DECIMAL(10, 2) NOT NULL,
+  FOREIGN KEY (dataset_id) REFERENCES uploaded_datasets(dataset_id)
 );
 
 CREATE TABLE IF NOT EXISTS Adx_Data (

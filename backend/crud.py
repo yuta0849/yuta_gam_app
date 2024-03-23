@@ -1,7 +1,8 @@
 from database import SessionLocal, SQLALCHEMY_DATABASE_URL
-from models import User, UserUploadedData
+from models import User, UploadedDataset, UploadedData
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 import datetime
 
 def create_user(google_user_id, name, email):
@@ -80,20 +81,34 @@ def save_uploaded_data(user_id, uploadObject):
     
     upload_timestamp = datetime.datetime.utcnow()
     
+    
     with SessionLocal() as db:
-        for record in data:
-            if db.query(UserUploadedData).filter_by(user_id=user_id, save_data_name=save_data_name).first():
-                # 同じuser_idとsave_data_nameの組み合わせがすでに存在する場合はエラーを返す
-                return {"error": "The same save_data_name already exists."}
-            new_data = UserUploadedData(
-                user_id=user_id,
-                upload_timestamp=upload_timestamp,
-                save_data_name=save_data_name,
-                date=record['date'],
-                ad_unit=record['name'],
-                avg_adx_cpm=record['avg_cpm'],   
+        try:
+            # 第1段階：マスタテーブル(uploaded_datasets)に userid, timestamp, save_data_nameを保存
+            dataset = UploadedDataset(
+            user_id=user_id,
+            upload_timestamp=upload_timestamp,
+            save_data_name=save_data_name,
             )
-            db.add(new_data)
-        db.commit()
-    # 成功メッセージを返す
+            db.add(dataset)
+            # `dataset_id`を生成するためにフラッシュ
+            db.flush()
+
+            # 第2段階：問題なくuploaded_datasetsテーブルに保存ができた場合、uploaded_dataにて実際のデータの保存を行う        
+            for record in data:
+                new_data = UploadedData(
+                    dataset_id=dataset.dataset_id,
+                    date=record['date'],
+                    ad_unit=record['name'],
+                    avg_adx_cpm=record['avg_cpm'],
+                )
+                db.add(new_data)
+            
+            # 第1段階と第2段階をまとめてコミット、どちらの保存処理も成功した時のみtableは更新される
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return {"error": str(e)}
+        
     return {"status": "success"}
+        
