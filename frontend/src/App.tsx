@@ -188,15 +188,6 @@ function App() {
     }
   };
 
-  // // 保存ボタンクリック時のハンドラ－
-  // const handleSaveUploadData = () => {
-  //   const uploadObject = {
-  //     dataName: inputName,
-  //     data: uploadData
-  //   }
-  //   console.log(uploadObject);
-  // }
-
   const handleSaveUploadData = async () => {
     if (uploadData) {
       const uploadObject = {

@@ -1,8 +1,7 @@
-from database import SessionLocal, SQLALCHEMY_DATABASE_URL
+from database import SessionLocal
 from models import User, UploadedDataset, UploadedData
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import StatementError, IntegrityError
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 import datetime
 
 def create_user(google_user_id, name, email):

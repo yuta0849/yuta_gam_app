@@ -21,19 +21,6 @@ class Adx_Data(Base):
     adx_revenue = Column(DECIMAL(10, 2))
     avg_adx_cpm = Column(DECIMAL(10, 2))
 
-# class UserUploadedData(Base):
-#     __tablename__ = 'user_uploaded_data'
-
-#     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-#     upload_timestamp = Column(DateTime)
-#     user_id = Column(String(255), nullable=False)
-#     save_data_name = Column(String(255), nullable=False)
-#     date = Column(Date, nullable=False)
-#     ad_unit = Column(String(255), nullable=False)
-#     avg_adx_cpm = Column(DECIMAL(10, 2), nullable=False)
-    
-#     UniqueConstraint('user_id', 'save_data_name', name='uix_1') 
-
 class UploadedDataset(Base):
     __tablename__ = 'uploaded_datasets'
 
@@ -43,7 +30,6 @@ class UploadedDataset(Base):
     save_data_name = Column(String(255), nullable=False)
 
     __table_args__ = (UniqueConstraint('user_id', 'save_data_name', name='uix_1'),)
-
 
 class UploadedData(Base):
     __tablename__ = 'uploaded_data'
