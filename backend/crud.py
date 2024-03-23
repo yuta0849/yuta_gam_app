@@ -2,7 +2,7 @@ from database import SessionLocal, SQLALCHEMY_DATABASE_URL
 from models import User, UploadedDataset, UploadedData
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import StatementError, IntegrityError
 import datetime
 
 def create_user(google_user_id, name, email):
@@ -106,6 +106,10 @@ def save_uploaded_data(user_id, uploadObject):
             
             # 第1段階と第2段階をまとめてコミット、どちらの保存処理も成功した時のみtableは更新される
             db.commit()
+        # 一意性制約違反のエラーハンドリング
+        except IntegrityError as e:
+            db.rollback()
+            return {"error": "その名前は既に使用されています"}
         except Exception as e:
             db.rollback()
             return {"error": str(e)}

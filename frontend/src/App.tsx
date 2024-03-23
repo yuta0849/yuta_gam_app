@@ -21,6 +21,8 @@ function App() {
   const [inputName, setInputName] = useState("");
   // 保存名を入力時、保存ボタンを表示するかどうかを保持するstate
   const [isSaveButtonVisible, setSaveButtonVisible] = useState(false);
+  // 保存成功/失敗時に表示するメッセージ内容を保持
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     // input要素のリセット
@@ -87,8 +89,10 @@ function App() {
 
     fetchData();
     setUploadedFile(false);
+    setMessage('');
   }, [selectedOption]);
 
+  // 画面初回描画時に走るuseEffect
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
@@ -108,6 +112,7 @@ function App() {
 
     checkLoginStatus();
     setUploadedFile(false);
+    setMessage('');
   }, []);
 
 
@@ -194,8 +199,10 @@ function App() {
           // サーバーから返されたエラーレスポンスを処理 
           if (error.response) {
             console.log('Error:', error.response.data);
+            setMessage(`エラー: ${error.response.data.error}`);
           } else {
             console.log('Error:', error.message);
+            setMessage('Unkown Error');
           }
         });
 
@@ -204,9 +211,10 @@ function App() {
         setUploadedFile(false);
         console.log('save成功');
         console.log(uploadObject);
+        setMessage('データが保存されました');
       }
     }
-    setInputName('');  // ここで入力フィールドをクリア
+    setInputName('');  // 入力フィールドをクリア
     setSaveButtonVisible(false);  // 保存ボタンも非表示にする
   };
 
@@ -216,7 +224,7 @@ function App() {
       setIsInputVisible(false);
       setSaveButtonVisible(false);
     }
-  }, [uploadedFile]); // この配列にuploadedFileを入れることで、uploadedFileが変わるたびにこのuseEffectが走ります
+  }, [uploadedFile]);
 
   if (!loggedIn) {
     return (
@@ -238,6 +246,7 @@ function App() {
         {uploadedFile && <button onClick={handleUploadButtonClick}>アップロードデータを保存</button>}
         {isInputVisible && (<input type="text" value={inputName} onChange={handleInputChange} placeholder="保存名を入力してください" />)}
         {isSaveButtonVisible && <button onClick={handleSaveUploadData}>保存</button>}
+        <p>{message}</p>
         <h3>{username} さん</h3>
         <button onClick={handleLogout}>ログアウト</button>
       </div>
