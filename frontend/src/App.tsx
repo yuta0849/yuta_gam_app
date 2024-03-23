@@ -51,10 +51,10 @@ function App() {
             title: { text: undefined },
             xAxis: {
               type: 'datetime',
-              title: { text: null }
+              title: { text: 'Date' }
             },
             yAxis: {
-              title: { text: null },
+              title: { text: 'CPM(¥)' },
               plotLines: [{
                 value: 0,
                 width: 1,
