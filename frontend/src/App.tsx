@@ -46,7 +46,7 @@ function App() {
           const newChart = new Highcharts.Chart({
             chart: {
               renderTo: containerRef.current,
-              margin: [50, 250, 60, 80]
+              margin: [50, 120, 100, 120]
             },
             title: { text: undefined },
             xAxis: {
@@ -66,16 +66,16 @@ function App() {
               xDateFormat: '%m/%d'
             },
             legend: {
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'top',
-              x: -10,
-              y: 100,
-              borderWidth: 0
+              layout: 'horizontal',
+              align: 'center',
+              verticalAlign: 'bottom',
+              floating: true,  // 凡例を浮かせて表示
+              y: 10  // 上方向に30pxスライド
             },
             series: [{
               type: 'line',
-              name: selectedOption,
+              id: 'default',
+              name: `${selectedOption}-Trend`, 
               data: formattedData
             }]
           });
@@ -155,9 +155,18 @@ function App() {
       });
 
       if (chart) {
+
+        // id'uploaded'のseriesを削除
+        const uploadedSeries = chart.get('uploaded');
+        if(uploadedSeries) {
+          uploadedSeries.remove();
+        }
+      
+        // 新しいseriesを追加
         chart.addSeries({
           type: 'line',
-          name: response.data[0].name,
+          id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
+          name: response.data[0].name,   
           data: data,
         });
       }
@@ -246,7 +255,7 @@ function App() {
         {uploadedFile && <button onClick={handleUploadButtonClick}>アップロードデータを保存</button>}
         {isInputVisible && (<input type="text" value={inputName} onChange={handleInputChange} placeholder="保存名を入力してください" />)}
         {isSaveButtonVisible && <button onClick={handleSaveUploadData}>保存</button>}
-        <p>{message}</p>
+        <p style={{ color: message.startsWith('エラー') || message === 'Unkown Error' ? 'red' : 'initial' }}>{message}</p>
         <h3>{username} さん</h3>
         <button onClick={handleLogout}>ログアウト</button>
       </div>
