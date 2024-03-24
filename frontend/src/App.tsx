@@ -26,7 +26,9 @@ function App() {
   // ユーザーが過去に保存したsave_data_nameをリスト型で保持するstate
   const [dataNames, setDataNames] = useState<string[]>([]);
   // save_data_nameを保持するState
-  const[selectedSaveDataName, setSelectedSaveDataName] = useState("保存データを参照");
+  const [selectedSaveDataName, setSelectedSaveDataName] = useState("保存データを参照");
+  // 保存データ呼び出し時のエラーメッセージを保持するState
+  const [fileGetErrorMessage, setFileGetErrorMessage] = useState("");
 
   useEffect(() => {
     // input要素のリセット
@@ -79,7 +81,7 @@ function App() {
             series: [{
               type: 'line',
               id: 'default',
-              name: `${selectedOption}-Trend`, 
+              name: `${selectedOption}-Trend`,
               data: formattedData
             }]
           });
@@ -94,6 +96,7 @@ function App() {
     fetchData();
     setUploadedFile(false);
     setMessage('');
+    setSelectedSaveDataName('保存データを参照');
   }, [selectedOption]);
 
   // 画面初回描画時に走るuseEffect
@@ -112,7 +115,7 @@ function App() {
         // 保存データの取得
         const savedDataResponse = await axios.get(`${API_URL}/get-saved-data`, { withCredentials: true });
         const savedData = await savedDataResponse.data;
-        if(savedData.length === 0) {
+        if (savedData.length === 0) {
           setDataNames(['保存データなし']);
         } else {
           setDataNames(['保存データを参照', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
@@ -170,21 +173,22 @@ function App() {
 
         // id'uploaded'のseriesを削除
         const uploadedSeries = chart.get('uploaded');
-        if(uploadedSeries) {
+        if (uploadedSeries) {
           uploadedSeries.remove();
         }
-      
+
         // 新しいseriesを追加
         chart.addSeries({
           type: 'line',
           id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
-          name: response.data[0].name,   
+          name: response.data[0].name,
           data: data,
         });
       }
     }
     setUploadedFile(true);
     setUploadData(response.data);
+    setSelectedSaveDataName('保存データを参照');
   };
 
   // アップロードボタンクリック時のハンドラ－
@@ -248,41 +252,48 @@ function App() {
       return;
     }
 
-    try {
-        const response = await axios.get(`${API_URL}/get-data-details?name=${selected}`, { withCredentials: true });
-        // レスポンスの確認
-        console.log(response);
-
-        if (Array.isArray(response.data)) {
-          const data = response.data.map((item: { date: string, ad_unit: string, avg_adx_cpm: string }) => {
-            return {
-              x: new Date(item.date).getTime(),
-              y: parseFloat(item.avg_adx_cpm)
-            };
-          });
-          // マッピング後のdataを確認
-          console.log(data);
-
-          if (chart) {
-            // id 'uploaded'のseriesを削除
-            const uploadedSeries = chart.get('uploaded');
-            if(uploadedSeries) {
-              uploadedSeries.remove();
-            }
-            // chartの状態を確認
-            console.log(chart);
-          
-            // 新しいseriesを追加
-            chart.addSeries({
-              type: 'line',
-              id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
-              name: selected,
-              data: data,
-            });
-          }
+    const response = await axios.get(`${API_URL}/get-data-details?name=${selected}`, { withCredentials: true })
+      .catch((error) => {
+        // サーバーから返されたエラーレスポンスを処理 
+        if (error.response) {
+          setFileGetErrorMessage(error.response.data.error);
+        } else {
+          setFileGetErrorMessage('データを取得中にエラーが発生しました。');
         }
-    } catch (error) {
-        // エラーハンドリング
+      });
+
+    if (response) {
+      // レスポンスの確認
+      console.log(response);
+
+      if (Array.isArray(response.data)) {
+        const data = response.data.map((item: { date: string, ad_unit: string, avg_adx_cpm: string }) => {
+          return {
+            x: new Date(item.date).getTime(),
+            y: parseFloat(item.avg_adx_cpm)
+          };
+        });
+        // マッピング後のdataを確認
+        console.log(data);
+
+        if (chart) {
+          // id 'uploaded'のseriesを削除
+          const uploadedSeries = chart.get('uploaded');
+          if (uploadedSeries) {
+            uploadedSeries.remove();
+          }
+          // chartの状態を確認
+          console.log(chart);
+
+          // 新しいseriesを追加
+          chart.addSeries({
+            type: 'line',
+            id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
+            name: selected,
+            data: data,
+          });
+        }
+      }
     }
   };
 
@@ -319,6 +330,7 @@ function App() {
               <option key={index} value={name}>{name}</option>
             ))}
           </select>
+          {fileGetErrorMessage && <div className="error-message" style={{ color: 'red' }}>{fileGetErrorMessage}</div>}
           <button>保存データを削除する</button>
         </div>
       </div>
