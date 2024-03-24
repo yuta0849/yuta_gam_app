@@ -197,6 +197,12 @@ def save_uploaded_file():
         return {'error': result["error"]}, 400
     else:
         return {'status': 'success'}, 200
+    
+@app.route('/get-saved-data', methods=['GET'])
+def get_saved_data_route():
+    user_id = session.get('userid')
+    data = crud.get_saved_data(user_id)
+    return jsonify(data)
 
 
 if __name__ == '__main__':

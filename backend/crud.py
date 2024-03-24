@@ -2,6 +2,7 @@ from database import SessionLocal
 from models import User, UploadedDataset, UploadedData
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
+from typing import List, Dict
 import datetime
 
 def create_user(google_user_id, name, email):
@@ -114,4 +115,11 @@ def save_uploaded_data(user_id, uploadObject):
             return {"error": str(e)}
         
     return {"status": "success"}
+
+def get_saved_data(user_id: str) -> List[Dict[str, str]]:
+    with SessionLocal() as db:
+        query_result = db.query(UploadedDataset.save_data_name).filter(UploadedDataset.user_id == user_id).all()
+    # 戻り値は{"save_data_name": 保存した名前}のリストになる
+    data = [{"save_data_name": result[0]} for result in query_result]
+    return data
         

@@ -23,6 +23,8 @@ function App() {
   const [isSaveButtonVisible, setSaveButtonVisible] = useState(false);
   // 保存成功/失敗時に表示するメッセージ内容を保持
   const [message, setMessage] = useState('');
+  // ユーザーが過去に保存したsave_data_nameをリスト型で保持するstate
+  const [dataNames, setDataNames] = useState<string[]>([]);
 
   useEffect(() => {
     // input要素のリセット
@@ -98,13 +100,21 @@ function App() {
       try {
         // ログイン状態の確認
         const response = await axios.get(`${API_URL}/loggedin`, { withCredentials: true });
-        // 下記がなぜか初回レンダリング時に2回呼び出されている(開発環境のみ？)
         console.log(response.data);
         setLoggedIn(response.data.loggedIn);
 
         // ユーザー名の取得
         const userResponse = await axios.get(`${API_URL}/user`, { withCredentials: true });
         setUsername(userResponse.data.username);
+
+        // 保存データの取得
+        const savedDataResponse = await axios.get(`${API_URL}/get-saved-data`, { withCredentials: true });
+        const savedData = await savedDataResponse.data;
+        if(savedData.length === 0) {
+          setDataNames(['保存データなし']);
+        } else {
+          setDataNames(savedData.map((data: { [key: string]: string }) => data.save_data_name));
+        }
       } catch (error) {
         console.error(`Error checking login status: ${error}`);
       }
@@ -238,6 +248,7 @@ function App() {
     <>
       <div className="App" id="container" ref={containerRef}></div>
       <div className="center">
+        {/* 後ほどLeftSideコンポーネントとして切り出したい */}
         <div className="left-side">
           <select value={selectedOption} onChange={handleChange}>
             <option value="Overlay">Overlay</option>
@@ -251,10 +262,12 @@ function App() {
           <h3>{username} さん</h3>
           <button onClick={handleLogout}>ログアウト</button>
         </div>
+        {/* 後ほどRightSideコンポーネントとして切り出したい */}
         <div className="right-side">
           <select>
-            <option value="保存データA">保存データA</option>
-            <option value="保存データB">保存データB</option>
+            {dataNames.map((name, index) => (
+              <option key={index} value={name}>{name}</option>
+            ))}
           </select>
           <button>保存データを削除する</button>
         </div>
