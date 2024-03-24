@@ -243,6 +243,10 @@ function App() {
           <option value="Interstitial">Interstitial</option>
         </select>
         <input type="file" ref={inputFileRef} onChange={handleFileUpload} />
+        <select>
+          <option value="保存データA">保存データA</option>
+          <option value="保存データB">保存データB</option>
+        </select>
         {uploadedFile && <button onClick={handleUploadButtonClick}>アップロードデータを保存</button>}
         {isInputVisible && (<input type="text" value={inputName} onChange={handleInputChange} placeholder="保存名を入力してください" />)}
         {isSaveButtonVisible && <button onClick={handleSaveUploadData}>保存</button>}
