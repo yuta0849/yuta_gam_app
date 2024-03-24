@@ -211,5 +211,12 @@ def get_data_details():
     data = crud.get_data_details(user_id, save_data_name)
     return jsonify(data)
 
+@app.route('/delete-saved-data', methods=['GET'])
+def delete_data():
+    delete_data_name = request.args.get('name')
+    message, status_code = crud.delete_data(delete_data_name)
+    return message, status_code
+    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

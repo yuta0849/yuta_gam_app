@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Highcharts from 'highcharts';
 import axios from 'axios';
 import './App.css';
+import { AxiosError } from "axios";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -26,9 +27,11 @@ function App() {
   // ユーザーが過去に保存したsave_data_nameをリスト型で保持するstate
   const [dataNames, setDataNames] = useState<string[]>([]);
   // save_data_nameを保持するState
-  const [selectedSaveDataName, setSelectedSaveDataName] = useState("保存データを参照");
+  const [selectedSaveDataName, setSelectedSaveDataName] = useState("保存データを選択");
   // 保存データ呼び出し時のエラーメッセージを保持するState
   const [fileGetErrorMessage, setFileGetErrorMessage] = useState("");
+  // 保存データ削除時のメッセージを保持するState
+  const [deleteDataMessage, setDeleteDataMessage] = useState("");
 
   // ユーザーが選択したファイルのクリア
   const clearFileInput = () => {
@@ -101,7 +104,7 @@ function App() {
     fetchData();
     setUploadedFile(false);
     setMessage('');
-    setSelectedSaveDataName('保存データを参照');
+    setSelectedSaveDataName('保存データを選択');
   }, [selectedOption]);
 
   // 画面初回描画時に走るuseEffect
@@ -121,9 +124,9 @@ function App() {
         const savedDataResponse = await axios.get(`${API_URL}/get-saved-data`, { withCredentials: true });
         const savedData = await savedDataResponse.data;
         if (savedData.length === 0) {
-          setDataNames(['保存データなし']);
+          setDataNames(['保存データを選択']);
         } else {
-          setDataNames(['保存データを参照', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
+          setDataNames(['保存データを選択', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
         }
       } catch (error) {
         console.error(`Error checking login status: ${error}`);
@@ -193,7 +196,7 @@ function App() {
     }
     setUploadedFile(true);
     setUploadData(response.data);
-    setSelectedSaveDataName('保存データを参照');
+    setSelectedSaveDataName('保存データを選択');
   };
 
   // アップロードボタンクリック時のハンドラ－
@@ -257,7 +260,7 @@ function App() {
     setSelectedSaveDataName(selected);
 
     // 初期値の状態ではエンドポイントへのリクエストを行わない
-    if (selected === '保存データを参照') {
+    if (selected === '保存データを選択') {
       return;
     }
 
@@ -308,6 +311,27 @@ function App() {
     setUploadedFile(false);
   };
 
+  const handleDeleteSaveData = async () => {
+    // 初期値の状態ではエンドポイントへのリクエストを行わない
+    if (selectedSaveDataName === '保存データを選択') {
+      return;
+    }
+    try {
+      const response = await axios.get(`${API_URL}/delete-saved-data?name=${selectedSaveDataName}`, { withCredentials: true });
+      setDeleteDataMessage(response.data);  // サーバからのメッセージを表示
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        setDeleteDataMessage(`エラー： ${String(axiosError.response.data)}`); // エラーメッセージを文字列化して表示
+      } else {
+        setDeleteDataMessage('エラー：データの削除中にエラーが発生しました。');
+      }
+    }
+  };
+
   if (!loggedIn) {
     return (
       <div className="center">
@@ -342,7 +366,8 @@ function App() {
             ))}
           </select>
           {fileGetErrorMessage && <div className="error-message" style={{ color: 'red' }}>{fileGetErrorMessage}</div>}
-          <button>保存データを削除する</button>
+          <button onClick={handleDeleteSaveData}>保存データを削除する</button>
+          {deleteDataMessage &&  (<p style={{ color: deleteDataMessage.startsWith('エラー') ? 'red' : 'initial' }}>{deleteDataMessage}</p>)}
         </div>
       </div>
     </>

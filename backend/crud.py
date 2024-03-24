@@ -136,4 +136,29 @@ def get_data_details(user_id: str, save_data_name: str) -> Dict[str, Any]:
 
     details = [{"date": r.date, "ad_unit": r.ad_unit, "avg_adx_cpm": r.avg_adx_cpm} for r in data_details]
     return details
+
+def delete_data(delete_data_name: str):
+    with SessionLocal() as db:
+        delete_datadataset = db.query(UploadedDataset).filter_by(save_data_name=delete_data_name).first()
+        
+        # delete_data_nameが存在しなかった場合のエラーハンドリング
+        if delete_datadataset is None:
+            return f"データが見つかりませんでした。: {delete_data_name}", 404
+        
+        delete_datadataset_id = delete_datadataset.dataset_id
+        delete_data_details = db.query(UploadedData).filter_by(dataset_id=delete_datadataset_id).all()
+        
+        for data_detail in delete_data_details:
+            db.delete(data_detail)
+            
+        delete_dataset = db.query(UploadedDataset).filter_by(dataset_id=delete_datadataset_id).first()
+        
+        if delete_dataset:
+            db.delete(delete_dataset)
+        
+            db.commit()
+        
+            return "保存データの削除が完了しました。", 200
+        
+        
         
