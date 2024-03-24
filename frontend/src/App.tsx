@@ -30,11 +30,16 @@ function App() {
   // 保存データ呼び出し時のエラーメッセージを保持するState
   const [fileGetErrorMessage, setFileGetErrorMessage] = useState("");
 
+  // ユーザーが選択したファイルのクリア
+  const clearFileInput = () => {
+    if(inputFileRef.current) {
+      inputFileRef.current.value = "";
+    }
+  }
+
   useEffect(() => {
     // input要素のリセット
-    if (inputFileRef.current) {
-      inputFileRef.current.value = '';
-    }
+    clearFileInput();
 
     const fetchData = async () => {
       try {
@@ -224,6 +229,7 @@ function App() {
 
       if (response && response.status === 200) {
         // データ保存成功時の処理
+        clearFileInput();
         setUploadedFile(false);
         console.log('save成功');
         console.log(uploadObject);
@@ -295,6 +301,8 @@ function App() {
         }
       }
     }
+    clearFileInput();
+    setUploadedFile(false);
   };
 
   if (!loggedIn) {
