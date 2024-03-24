@@ -234,6 +234,9 @@ function App() {
         console.log('save成功');
         console.log(uploadObject);
         setMessage('データが保存されました');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     }
     setInputName('');  // 入力フィールドをクリア
