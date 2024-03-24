@@ -239,7 +239,7 @@ function App() {
         setMessage('データが保存されました');
         setTimeout(() => {
           window.location.reload();
-        }, 2000);
+        }, 500);
       }
     }
     setInputName('');  // 入力フィールドをクリア
@@ -321,7 +321,7 @@ function App() {
       setDeleteDataMessage(response.data);  // サーバからのメッセージを表示
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, 500);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
