@@ -334,8 +334,8 @@ function App() {
 
   if (!loggedIn) {
     return (
-      <div className="center">
-        <button onClick={handleLogin}>ログイン</button>
+      <div className="login-container">
+        <button className="login-button" onClick={handleLogin}>ログイン</button>
       </div>
     );
   }

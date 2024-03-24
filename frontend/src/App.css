@@ -5,6 +5,21 @@
   margin-top: 100px;
 }
 
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /*親要素が画面全体を占めるようにする*/
+}
+
+.login-button {
+  transition: background-color 0.3s; /* 背景色を0.3秒かけて変化させる */
+}
+
+.login-button:hover {
+  background-color: #3399FF; /* ホバー時（マウスをのせた時）のボタンの背景色を暗い青色にする */
+}
+
 .center {
   text-align: center;
   display: flex;
