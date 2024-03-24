@@ -6,14 +6,28 @@
 
 .center {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* 縦方向の位置を開始点に */
-  align-items: center; /* 横方向は中央に */
-  height: auto; /* 高さを自動に */
-  padding: 20px 0; /* 上下の余白を追加するには */
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-top: 70px;
 }
 
-select, input, button {
+.left-side, .right-side {
+  width: 100%;
+  display: flex; /* 子要素を縦方向に並べる */
+  flex-direction: column;
+  align-items: center;  /* 子要素を中央揃え */
+}
+
+.left-side{
+  margin-left: 150px;   /* right-sideの左マージン */
+}
+
+.right-side {
+  margin-right: 150px;  /* left-sideの右マージン */
+}
+
+
+select, input, button, p {
   width: 400px;
   /* 幅の変更 */
   height: 50px;
