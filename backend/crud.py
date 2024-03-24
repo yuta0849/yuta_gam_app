@@ -2,8 +2,9 @@ from database import SessionLocal
 from models import User, UploadedDataset, UploadedData
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
-from typing import List, Dict
+from typing import List, Dict, Any
 import datetime
+import logging
 
 def create_user(google_user_id, name, email):
     # セッションの生成
@@ -122,4 +123,17 @@ def get_saved_data(user_id: str) -> List[Dict[str, str]]:
     # 戻り値は{"save_data_name": 保存した名前}のリストになる
     data = [{"save_data_name": result[0]} for result in query_result]
     return data
+
+def get_data_details(user_id: str, save_data_name: str) -> Dict[str, Any]:
+    logging.info("%s %s", user_id, save_data_name)
+    with SessionLocal() as db:
+        dataset = db.query(UploadedDataset).filter_by(user_id=user_id, save_data_name=save_data_name).first()
+        logging.info(dataset)
+        if dataset is None:
+            return {"error": "No matching dataset found"}
+
+        data_details = db.query(UploadedData).filter_by(dataset_id=dataset.dataset_id).all()
+
+    details = [{"date": r.date, "ad_unit": r.ad_unit, "avg_adx_cpm": r.avg_adx_cpm} for r in data_details]
+    return details
         

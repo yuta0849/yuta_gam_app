@@ -204,6 +204,12 @@ def get_saved_data_route():
     data = crud.get_saved_data(user_id)
     return jsonify(data)
 
+@app.route('/get-data-details', methods=['GET'])
+def get_data_details():
+    save_data_name = request.args.get('name')
+    user_id = session.get('userid')
+    data = crud.get_data_details(user_id, save_data_name)
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

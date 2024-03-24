@@ -25,6 +25,8 @@ function App() {
   const [message, setMessage] = useState('');
   // ユーザーが過去に保存したsave_data_nameをリスト型で保持するstate
   const [dataNames, setDataNames] = useState<string[]>([]);
+  // save_data_nameを保持するState
+  const[selectedSaveDataName, setSelectedSaveDataName] = useState("保存データを参照");
 
   useEffect(() => {
     // input要素のリセット
@@ -113,7 +115,7 @@ function App() {
         if(savedData.length === 0) {
           setDataNames(['保存データなし']);
         } else {
-          setDataNames(savedData.map((data: { [key: string]: string }) => data.save_data_name));
+          setDataNames(['保存データを参照', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
         }
       } catch (error) {
         console.error(`Error checking login status: ${error}`);
@@ -236,6 +238,54 @@ function App() {
     }
   }, [uploadedFile]);
 
+  // saveDataNameが変更された際に実行される関数(useEffectを使用していない)
+  const handleSaveDataNameChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = event.target.value;
+    setSelectedSaveDataName(selected);
+
+    // 初期値の状態ではエンドポイントへのリクエストを行わない
+    if (selected === '保存データを参照') {
+      return;
+    }
+
+    try {
+        const response = await axios.get(`${API_URL}/get-data-details?name=${selected}`, { withCredentials: true });
+        // レスポンスの確認
+        console.log(response);
+
+        if (Array.isArray(response.data)) {
+          const data = response.data.map((item: { date: string, ad_unit: string, avg_adx_cpm: string }) => {
+            return {
+              x: new Date(item.date).getTime(),
+              y: parseFloat(item.avg_adx_cpm)
+            };
+          });
+          // マッピング後のdataを確認
+          console.log(data);
+
+          if (chart) {
+            // id 'uploaded'のseriesを削除
+            const uploadedSeries = chart.get('uploaded');
+            if(uploadedSeries) {
+              uploadedSeries.remove();
+            }
+            // chartの状態を確認
+            console.log(chart);
+          
+            // 新しいseriesを追加
+            chart.addSeries({
+              type: 'line',
+              id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
+              name: selected,
+              data: data,
+            });
+          }
+        }
+    } catch (error) {
+        // エラーハンドリング
+    }
+  };
+
   if (!loggedIn) {
     return (
       <div className="center">
@@ -264,7 +314,7 @@ function App() {
         </div>
         {/* 後ほどRightSideコンポーネントとして切り出したい */}
         <div className="right-side">
-          <select>
+          <select value={selectedSaveDataName} onChange={handleSaveDataNameChange}>
             {dataNames.map((name, index) => (
               <option key={index} value={name}>{name}</option>
             ))}
