@@ -3,6 +3,12 @@ import Highcharts from 'highcharts';
 import axios from 'axios';
 import './App.css';
 import { AxiosError } from "axios";
+import LoginForm from './LoginForm';
+import FileUpload from './FileUpload';
+import UserInfo from './UserInfo';
+import SavedData from './SavedData';
+import SelectOption from './SelectOption';
+
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -341,36 +347,44 @@ function App() {
   }
 
   return (
-    <>
-      <div className="App" id="container" ref={containerRef}></div>
-      <div className="center">
-        {/* 後ほどLeftSideコンポーネントとして切り出したい */}
-        <div className="left-side">
-          <select value={selectedOption} onChange={handleChange}>
-            <option value="Overlay">Overlay</option>
-            <option value="Interstitial">Interstitial</option>
-          </select>
-          <input type="file" ref={inputFileRef} onChange={handleFileUpload} />
-          {uploadedFile && <button onClick={handleUploadButtonClick}>アップロードデータを保存</button>}
-          {isInputVisible && (<input type="text" value={inputName} onChange={handleInputChange} placeholder="保存名を入力してください" />)}
-          {isSaveButtonVisible && <button onClick={handleSaveUploadData}>保存</button>}
-          {message && (<p style={{ color: message.startsWith('エラー') || message === 'Unkown Error' ? 'red' : 'initial' }}>{message}</p>)}
-          <h3>{username} さん</h3>
-          <button onClick={handleLogout}>ログアウト</button>
-        </div>
-        {/* 後ほどRightSideコンポーネントとして切り出したい */}
-        <div className="right-side">
-          <select value={selectedSaveDataName} onChange={handleSaveDataNameChange}>
-            {dataNames.map((name, index) => (
-              <option key={index} value={name}>{name}</option>
-            ))}
-          </select>
-          {fileGetErrorMessage && <div className="error-message" style={{ color: 'red' }}>{fileGetErrorMessage}</div>}
-          <button onClick={handleDeleteSaveData}>保存データを削除する</button>
-          {deleteDataMessage &&  (<p style={{ color: deleteDataMessage.startsWith('エラー') ? 'red' : 'initial' }}>{deleteDataMessage}</p>)}
-        </div>
-      </div>
-    </>
+    loggedIn
+      ? <>
+          <div className="App" id="container" ref={containerRef}></div>
+          <div className="center">
+            <div className="left-side">
+              <SelectOption 
+                selectedOption={selectedOption} 
+                handleChange={handleChange} 
+              />
+              <FileUpload 
+                uploadedFile={uploadedFile}
+                uploadButtonClick={handleUploadButtonClick}
+                isInputVisible={isInputVisible}
+                inputName={inputName}
+                handleInputChange={handleInputChange}
+                isSaveButtonVisible={isSaveButtonVisible}
+                handleSaveUploadData={handleSaveUploadData}
+                message={message}
+                handleFileUpload={handleFileUpload}
+              />
+              <UserInfo 
+                username={username} 
+                handleLogout={handleLogout} 
+              />
+            </div>
+            <div className="right-side">
+              <SavedData 
+                dataNames={dataNames}
+                selectedSaveDataName={selectedSaveDataName}
+                handleSaveDataNameChange={handleSaveDataNameChange}
+                fileGetErrorMessage={fileGetErrorMessage}
+                handleDeleteSaveData={handleDeleteSaveData}
+                deleteDataMessage={deleteDataMessage}
+              />
+            </div>
+          </div>
+        </>
+      : <LoginForm handleLogin={handleLogin} />
   );
 }
 
