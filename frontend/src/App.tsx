@@ -338,14 +338,6 @@ function App() {
     }
   };
 
-  if (!loggedIn) {
-    return (
-      <div className="login-container">
-        <button className="login-button" onClick={handleLogin}>ログイン</button>
-      </div>
-    );
-  }
-
   return (
     loggedIn
       ? <>
