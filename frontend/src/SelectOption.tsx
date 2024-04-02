@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 
-interface SelectOptionProps {
+type SelectOptionProps = {
   selectedOption: string;
-  handleChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-}
+  handleChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+};
 
-function SelectOption({ selectedOption, handleChange }: SelectOptionProps) {
+const SelectOption = ({ selectedOption, handleChange }: SelectOptionProps) => {
   return (
     <select value={selectedOption} onChange={handleChange}>
       <option value="Overlay">Overlay</option>
