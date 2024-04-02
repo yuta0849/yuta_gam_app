@@ -1,6 +1,5 @@
-import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import SwaggerComponent from './SwaggerComponent';  // SwaggerComponentのインポート
+import SwaggerComponent from './SwaggerComponent';
 import App from './App';
 
 const Routing = () => {

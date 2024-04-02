@@ -9,15 +9,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /*親要素が画面全体を占めるようにする*/
+  height: 100vh;
 }
 
 .login-button {
-  transition: background-color 0.3s; /* 背景色を0.3秒かけて変化させる */
+  transition: background-color 0.3s;
 }
 
 .login-button:hover {
-  background-color: #3399FF; /* ホバー時（マウスをのせた時）のボタンの背景色を暗い青色にする */
+  background-color: #3399FF;
 }
 
 .center {
@@ -30,26 +30,23 @@
 
 .left-side, .right-side {
   width: 100%;
-  display: flex; /* 子要素を縦方向に並べる */
+  display: flex;
   flex-direction: column;
-  align-items: center;  /* 子要素を中央揃え */
+  align-items: center;
 }
 
 .left-side{
-  margin-left: 150px;   /* right-sideの左マージン */
+  margin-left: 150px;
 }
 
 .right-side {
-  margin-right: 150px;  /* left-sideの右マージン */
+  margin-right: 150px;
 }
 
 
 select, input, button, p {
   width: 400px;
-  /* 幅の変更 */
   height: 50px;
-  /* 高さの変更 */
   font-size: 15px;
-  /* フォントサイズの変更 */
-  margin: 10px 0;  /* 上下に10pxのマージンを追加 */
+  margin: 10px 0;
 }

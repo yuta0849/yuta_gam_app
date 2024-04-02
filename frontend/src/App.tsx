@@ -11,47 +11,85 @@ import SelectOption from './SelectOption';
 
 
 function App() {
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
   const [selectedOption, setSelectedOption] = useState("Overlay");
+
   const containerRef = useRef(null);
   const inputFileRef = useRef<HTMLInputElement | null>(null);
+
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
-  const API_URL = process.env.REACT_APP_API_URL;
-  const [username, setUsername] = useState('');
-  // アップロードされたファイルの有無を保持するstate
+  
+  
   const [uploadedFile, setUploadedFile] = useState(false);
-  // アップロードされるHighCharts用に成形されたデータを一時的に保持するためのstate
   const [uploadData, setUploadData] = useState(null);
-  // データ保存時、保存名を入力するinput要素の表示/非表示を保持するstate
   const [isInputVisible, setIsInputVisible] = useState(false);
-  // ユーザーが入力するデータ名を保存するstate
   const [inputName, setInputName] = useState("");
-  // 保存名を入力時、保存ボタンを表示するかどうかを保持するstate
   const [isSaveButtonVisible, setSaveButtonVisible] = useState(false);
-  // 保存成功/失敗時に表示するメッセージ内容を保持
   const [message, setMessage] = useState('');
-  // ユーザーが過去に保存したsave_data_nameをリスト型で保持するstate
+
   const [dataNames, setDataNames] = useState<string[]>([]);
-  // save_data_nameを保持するState
   const [selectedSaveDataName, setSelectedSaveDataName] = useState("保存データを選択");
-  // 保存データ呼び出し時のエラーメッセージを保持するState
   const [fileGetErrorMessage, setFileGetErrorMessage] = useState("");
-  // 保存データ削除時のメッセージを保持するState
   const [deleteDataMessage, setDeleteDataMessage] = useState("");
 
-  // ユーザーが選択したファイルのクリア
   const clearFileInput = () => {
     if(inputFileRef.current) {
       inputFileRef.current.value = "";
     }
   }
 
+  // GoogleOAuth認証画面へリダイレクトする、/login エンドポイントへ遷移させる
+  const handleLogin = () => {
+    window.location.href = `${API_URL}/login`;
+  }
+
+  const handleLogout = async () => {
+    if (chart !== null) {
+      chart.destroy();
+    }
+    await axios.get(`${API_URL}/logout`, { withCredentials: true });
+    setLoggedIn(false);
+  }
+
+  // ログイン時、画面初回描画時に走るuseEffect
   useEffect(() => {
-    // input要素のリセット
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/loggedin`, { withCredentials: true });
+        console.log(response.data);
+        setLoggedIn(response.data.loggedIn);
+
+        const userResponse = await axios.get(`${API_URL}/user`, { withCredentials: true });
+        setUsername(userResponse.data.username);
+
+        const savedDataResponse = await axios.get(`${API_URL}/get-saved-data`, { withCredentials: true });
+        const savedData = await savedDataResponse.data;
+        if (savedData.length === 0) {
+          setDataNames(['保存データを選択']);
+        } else {
+          setDataNames(['保存データを選択', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
+        }
+      } catch (error) {
+        console.error(`Error checking login status: ${error}`);
+      }
+    }
+
+    checkLoginStatus();
+    setUploadedFile(false);
+    setMessage('');
+  }, []);
+
+  // overlay または interstitial の選択が変更した際に走るuseEffect
+  useEffect(() => {
     clearFileInput();
 
     const fetchData = async () => {
       try {
+        // エンドポイントにoverlayまたはinterstitialを含めてリクエスト
         const response = await axios.get(`${API_URL}/api/${selectedOption.toLowerCase()}`);
 
         const formattedData = response.data.map((item: { avg_cpm: string, date: string }) => {
@@ -61,7 +99,7 @@ function App() {
           }
         });
 
-        // containerRef.currentが存在しているかどうかチェック
+        // containerRef.current が存在しているかチェックしてからチャートを描画
         if (containerRef.current) {
           const newChart = new Highcharts.Chart({
             chart: {
@@ -89,8 +127,8 @@ function App() {
               layout: 'horizontal',
               align: 'center',
               verticalAlign: 'bottom',
-              floating: true,  // 凡例を浮かせて表示
-              y: 10  // 上方向に30pxスライド
+              floating: true,
+              y: 10
             },
             series: [{
               type: 'line',
@@ -113,53 +151,9 @@ function App() {
     setSelectedSaveDataName('保存データを選択');
   }, [selectedOption]);
 
-  // 画面初回描画時に走るuseEffect
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        // ログイン状態の確認
-        const response = await axios.get(`${API_URL}/loggedin`, { withCredentials: true });
-        console.log(response.data);
-        setLoggedIn(response.data.loggedIn);
-
-        // ユーザー名の取得
-        const userResponse = await axios.get(`${API_URL}/user`, { withCredentials: true });
-        setUsername(userResponse.data.username);
-
-        // 保存データの取得
-        const savedDataResponse = await axios.get(`${API_URL}/get-saved-data`, { withCredentials: true });
-        const savedData = await savedDataResponse.data;
-        if (savedData.length === 0) {
-          setDataNames(['保存データを選択']);
-        } else {
-          setDataNames(['保存データを選択', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
-        }
-      } catch (error) {
-        console.error(`Error checking login status: ${error}`);
-      }
-    }
-
-    checkLoginStatus();
-    setUploadedFile(false);
-    setMessage('');
-  }, []);
-
-
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedOption(event.target.value);
   };
-
-  const handleLogin = () => {
-    window.location.href = `${API_URL}/login`;
-  }
-
-  const handleLogout = async () => {
-    if (chart !== null) {
-      chart.destroy();
-    }
-    await axios.get(`${API_URL}/logout`, { withCredentials: true });
-    setLoggedIn(false);
-  }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) {
@@ -173,8 +167,7 @@ function App() {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 
-    console.log(response.data);
-
+    // レスポンスはJSON配列
     if (response.data instanceof Array) {
       const data = response.data.map((item: { date: string, name: string, avg_cpm: number }) => {
         return {
@@ -191,7 +184,6 @@ function App() {
           uploadedSeries.remove();
         }
 
-        // 新しいseriesを追加
         chart.addSeries({
           type: 'line',
           id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
@@ -205,16 +197,16 @@ function App() {
     setSelectedSaveDataName('保存データを選択');
   };
 
-  // アップロードボタンクリック時のハンドラ－
   const handleUploadButtonClick = () => {
+    // true時に保存名を入力するinput要素が表示される
     setIsInputVisible(true);
   };
 
-  // 名前入力が完了したら保存ボタンを表示させる関数
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputName(event.target.value);
-    if (event.target.value !== "") { // Inputが空でない場合に限り
-      setSaveButtonVisible(true);    // 保存ボタンを表示
+    if (event.target.value !== "") {
+      // true時に保存ボタンを表示させる
+      setSaveButtonVisible(true);
     }
   };
 
@@ -225,8 +217,7 @@ function App() {
         data: uploadData
       }
       const response = await axios.post(`${API_URL}/saveuploaddata`, uploadObject, { withCredentials: true })
-        .catch((error) => {
-          // サーバーから返されたエラーレスポンスを処理 
+        .catch((error) => { 
           if (error.response) {
             console.log('Error:', error.response.data);
             setMessage(`エラー: ${error.response.data.error}`);
@@ -237,22 +228,18 @@ function App() {
         });
 
       if (response && response.status === 200) {
-        // データ保存成功時の処理
         clearFileInput();
         setUploadedFile(false);
-        console.log('save成功');
-        console.log(uploadObject);
         setMessage('データが保存されました');
         setTimeout(() => {
           window.location.reload();
         }, 500);
       }
     }
-    setInputName('');  // 入力フィールドをクリア
-    setSaveButtonVisible(false);  // 保存ボタンも非表示にする
+    setInputName('');
+    setSaveButtonVisible(false);
   };
 
-  // uploadedFileが変化したときに走るuseEffectフック
   useEffect(() => {
     if (!uploadedFile) {
       setIsInputVisible(false);
@@ -260,7 +247,7 @@ function App() {
     }
   }, [uploadedFile]);
 
-  // saveDataNameが変更された際に実行される関数(useEffectを使用していない)
+
   const handleSaveDataNameChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = event.target.value;
     setSelectedSaveDataName(selected);
@@ -272,7 +259,6 @@ function App() {
 
     const response = await axios.get(`${API_URL}/get-data-details?name=${selected}`, { withCredentials: true })
       .catch((error) => {
-        // サーバーから返されたエラーレスポンスを処理 
         if (error.response) {
           setFileGetErrorMessage(error.response.data.error);
         } else {
@@ -281,8 +267,6 @@ function App() {
       });
 
     if (response) {
-      // レスポンスの確認
-      console.log(response);
 
       if (Array.isArray(response.data)) {
         const data = response.data.map((item: { date: string, ad_unit: string, avg_adx_cpm: string }) => {
@@ -291,22 +275,17 @@ function App() {
             y: parseFloat(item.avg_adx_cpm)
           };
         });
-        // マッピング後のdataを確認
-        console.log(data);
 
         if (chart) {
-          // id 'uploaded'のseriesを削除
+          // 描画前に、id:'uploaded'のseriesを削除、画面にはトレンドデータと任意のユニットのデータの2種のみが表示されるようにする
           const uploadedSeries = chart.get('uploaded');
           if (uploadedSeries) {
             uploadedSeries.remove();
           }
-          // chartの状態を確認
-          console.log(chart);
 
-          // 新しいseriesを追加
           chart.addSeries({
             type: 'line',
-            id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
+            id: 'uploaded',
             name: selected,
             data: data,
           });
@@ -318,20 +297,19 @@ function App() {
   };
 
   const handleDeleteSaveData = async () => {
-    // 初期値の状態ではエンドポイントへのリクエストを行わない
     if (selectedSaveDataName === '保存データを選択') {
       return;
     }
     try {
       const response = await axios.get(`${API_URL}/delete-saved-data?name=${selectedSaveDataName}`, { withCredentials: true });
-      setDeleteDataMessage(response.data);  // サーバからのメッセージを表示
+      setDeleteDataMessage(response.data);
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
-        setDeleteDataMessage(`エラー： ${String(axiosError.response.data)}`); // エラーメッセージを文字列化して表示
+        setDeleteDataMessage(`エラー： ${String(axiosError.response.data)}`);
       } else {
         setDeleteDataMessage('エラー：データの削除中にエラーが発生しました。');
       }
@@ -349,6 +327,8 @@ function App() {
                 handleChange={handleChange} 
               />
               <FileUpload 
+                inputFileRef={inputFileRef}
+                handleFileUpload={handleFileUpload}
                 uploadedFile={uploadedFile}
                 uploadButtonClick={handleUploadButtonClick}
                 isInputVisible={isInputVisible}
@@ -356,8 +336,7 @@ function App() {
                 handleInputChange={handleInputChange}
                 isSaveButtonVisible={isSaveButtonVisible}
                 handleSaveUploadData={handleSaveUploadData}
-                message={message}
-                handleFileUpload={handleFileUpload}
+                message={message} 
               />
               <UserInfo 
                 username={username} 
