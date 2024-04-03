@@ -36,13 +36,14 @@ function App() {
   const [fileGetErrorMessage, setFileGetErrorMessage] = useState("");
   const [deleteDataMessage, setDeleteDataMessage] = useState("");
 
+  // ユーザーを混同させないために、必要な処理が終わったらファイルをクリアする
   const clearFileInput = () => {
     if(inputFileRef.current) {
       inputFileRef.current.value = "";
     }
   }
 
-  // GoogleOAuth認証画面へリダイレクトする、/login エンドポイントへ遷移させる
+  // GoogleOAuth認証画面へリダイレクトさせるために、/login エンドポイントへ遷移させる
   const handleLogin = () => {
     window.location.href = `${API_URL}/login`;
   }
@@ -55,7 +56,6 @@ function App() {
     setLoggedIn(false);
   }
 
-  // ログイン時、画面初回描画時に走るuseEffect
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
@@ -71,6 +71,7 @@ function App() {
         if (savedData.length === 0) {
           setDataNames(['保存データを選択']);
         } else {
+          // 配列を生成し、要素の数だけJSX内でoption要素を作成する
           setDataNames(['保存データを選択', ...savedData.map((data: { [key: string]: string }) => data.save_data_name)]);
         }
       } catch (error) {
@@ -83,13 +84,13 @@ function App() {
     setMessage('');
   }, []);
 
-  // overlay または interstitial の選択が変更した際に走るuseEffect
+  // 選択したフォーマットに対応したトレンドデータが選択時に自動で描画される
   useEffect(() => {
     clearFileInput();
 
     const fetchData = async () => {
       try {
-        // エンドポイントにoverlayまたはinterstitialを含めてリクエスト
+        // バックエンドでフォーマットの名前を引数として受け取る
         const response = await axios.get(`${API_URL}/api/${selectedOption.toLowerCase()}`);
 
         const formattedData = response.data.map((item: { avg_cpm: string, date: string }) => {
@@ -99,7 +100,7 @@ function App() {
           }
         });
 
-        // containerRef.current が存在しているかチェックしてからチャートを描画
+        // チャートの作成する起点のdivが存在することを確認してからチャートを作成する
         if (containerRef.current) {
           const newChart = new Highcharts.Chart({
             chart: {
@@ -178,7 +179,7 @@ function App() {
 
       if (chart) {
 
-        // id'uploaded'のseriesを削除
+        // 画面にはトレンドデータと任意のユニットのデータの2種のみが表示されるようにする
         const uploadedSeries = chart.get('uploaded');
         if (uploadedSeries) {
           uploadedSeries.remove();
@@ -186,7 +187,8 @@ function App() {
 
         chart.addSeries({
           type: 'line',
-          id: 'uploaded',  // upload時に既に存在するuploadデータを削除するための識別id
+          // ファイルupload時に既に存在するuploadデータのグラフを削除するための識別id
+          id: 'uploaded',
           name: response.data[0].name,
           data: data,
         });
@@ -231,6 +233,7 @@ function App() {
         clearFileInput();
         setUploadedFile(false);
         setMessage('データが保存されました');
+        // リロードをかけることで保存したデータを保存データoptionに表示
         setTimeout(() => {
           window.location.reload();
         }, 500);
@@ -277,7 +280,6 @@ function App() {
         });
 
         if (chart) {
-          // 描画前に、id:'uploaded'のseriesを削除、画面にはトレンドデータと任意のユニットのデータの2種のみが表示されるようにする
           const uploadedSeries = chart.get('uploaded');
           if (uploadedSeries) {
             uploadedSeries.remove();
