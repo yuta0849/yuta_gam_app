@@ -7,28 +7,23 @@ import datetime
 import logging
 
 def create_user(google_user_id, name, email):
-    # セッションの生成
     db = SessionLocal()
 
     user = User(google_user_id=google_user_id, name=name, email=email)
 
-    # ユーザを追加
     db.add(user)
     db.commit()
 
-    # セッションをクローズ
     db.close()
 
     return user
 
 def get_user_by_google_id(google_user_id):
-    # セッションの生成
     with SessionLocal() as db:
-        # Userモデルから指定されたgoogle_user_idを持つユーザーを探します
         user = db.query(User).filter(User.google_user_id == google_user_id).first()   
     return user
 
-# app.pyで呼び出す
+# htmlのoption要素(overlayまたはinterstitial)が引数として渡される
 def get_data(option):
     if option == "overlay":
         data = query_overlay_data()
@@ -38,7 +33,6 @@ def get_data(option):
 
 
 def query_overlay_data():
-    # セッションの生成 
     db = SessionLocal()
 
     query = text(""" 
@@ -50,7 +44,6 @@ def query_overlay_data():
 
     result = db.execute(query)
 
-    # セッションをクローズ
     db.close()
 
     data = [{'date': row.date, 'avg_cpm': row.avg_cpm} for row in result]
@@ -58,7 +51,6 @@ def query_overlay_data():
 
 
 def query_interstitial_data():
-    # セッションの生成 
     db = SessionLocal()
 
     query = text(""" 
@@ -70,7 +62,6 @@ def query_interstitial_data():
 
     result = db.execute(query)
 
-    # セッションをクローズ
     db.close()
 
     data = [{'date': row.date, 'avg_cpm': row.avg_cpm} for row in result]
@@ -80,6 +71,7 @@ def save_uploaded_data(user_id, uploadObject):
     save_data_name = uploadObject["dataName"]
     data = uploadObject["data"]
     
+    # 一意のタイムスタンプをsession開始前に定義
     upload_timestamp = datetime.datetime.utcnow()
     
     
@@ -120,15 +112,14 @@ def save_uploaded_data(user_id, uploadObject):
 def get_saved_data(user_id: str) -> List[Dict[str, str]]:
     with SessionLocal() as db:
         query_result = db.query(UploadedDataset.save_data_name).filter(UploadedDataset.user_id == user_id).all()
-    # 戻り値は{"save_data_name": 保存した名前}のリストになる
+    # 戻り値は{"save_data_name": 保存データ名}のリストになる
     data = [{"save_data_name": result[0]} for result in query_result]
     return data
 
 def get_data_details(user_id: str, save_data_name: str) -> Dict[str, Any]:
-    logging.info("%s %s", user_id, save_data_name)
     with SessionLocal() as db:
         dataset = db.query(UploadedDataset).filter_by(user_id=user_id, save_data_name=save_data_name).first()
-        logging.info(dataset)
+        
         if dataset is None:
             return {"error": "No matching dataset found"}
 
@@ -149,6 +140,7 @@ def delete_data(delete_data_name: str):
         delete_data_details = db.query(UploadedData).filter_by(dataset_id=delete_datadataset_id).all()
         
         for data_detail in delete_data_details:
+            # datasetテーブルに外部keyを持つdata_detailを先に削除
             db.delete(data_detail)
             
         delete_dataset = db.query(UploadedDataset).filter_by(dataset_id=delete_datadataset_id).first()
