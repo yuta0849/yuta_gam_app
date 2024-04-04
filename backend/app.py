@@ -21,9 +21,9 @@ logging.info("FLASK_ENV value is: " + os.getenv('FLASK_ENV'))
 
 # 開発環境ではHTTPでもOAuthを利用できるようにする
 if os.getenv('FLASK_ENV') == 'production':
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '0'
+    os.getenv['OAUTHLIB_INSECURE_TRANSPORT'] = '0'
 else:
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    os.getenv['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # 本番環境でcookieをブラウザに焼けるようにする
 if os.getenv('FLASK_ENV') == 'production':
